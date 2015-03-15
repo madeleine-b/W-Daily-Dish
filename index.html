@@ -2,37 +2,77 @@
 {% autoescape true %}
 <html>
   <head>
-    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+    <title>WDining V2</title> 
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--<meta name="keywords" content="wellesley college, wellesley fresh, dining" /> -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.2/js/bootstrap.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="stylesheets/main.css" />
+    
   </head>
 
   <body>
-    {% for greeting in greetings %}
-      {% if greeting.author %}
-        <b>{{ greeting.author.email }}
-          {% if user and user.user_id() == greeting.author.identity %}
-            (You)
-          {% endif %}
-        </b> wrote:
-      {% else %}
-       An anonymous person wrote:
-      {% endif %}
-      <blockquote>{{ greeting.content }}</blockquote>
-    {% endfor %}
+    <div class="header">
+      <h1>Wellesley Fresh V2.0</h1>
+    </div>
 
-    <form action="/sign?guestbook_name={{ guestbook_name }}" method="post">
-      <div><textarea name="content" rows="3" cols="60"></textarea></div>
-      <div><input type="submit" value="Sign Guestbook"></div>
-    </form>
+    <div class="row">
+      <div id="Lulu" class="menu-box col-xs-2">
+        <h2>Lulu</h2>
+        <p>
+          <ul>
+          {% for item in lulu_items %}
+            <li>{{item}}</li>
+          {% endfor %}
+          </ul>
+        </p>
 
-    <hr>
+      </div>
 
-    <form>Guestbook name:
-      <input value="{{ guestbook_name }}" name="guestbook_name">
-      <input type="submit" value="switch">
-    </form>
+      <div id="Bates" class="menu-box col-xs-2">
+        <h2>Bates</h2>
+        <p>
+          <ul>
+          {% for item in bates_items %}
+            <li>{{item}}</li>
+          {% endfor %}
+          </ul>
+        </p>
+      </div>
 
-    <a href="{{ url|safe }}">{{ url_linktext }}</a>
+      <div id="Pom" class="menu-box col-xs-2">
+        <h2>Pom</h2>
+        <p>
+          <ul>
+          {% for item in pom_items %}
+            <li>{{item}}</li>
+          {% endfor %}
+          </ul>
+        </p>
+      </div>
 
+      <div id="Stone" class="menu-box col-xs-2">
+        <h2>Stone-D</h2>
+        <p>
+          <ul>
+          {% for item in stone_items %}
+            <li>{{item}}</li>
+          {% endfor %}
+          </ul>
+        </p>
+      </div>
+
+      <div id="Tower" class="menu-box col-xs-2">
+        <h2>Tower</h2>
+        <p>
+          <ul>
+          {% for item in tower_items %}
+            <li>{{item}}</li>
+          {% endfor %}
+          </ul>
+        </p>
+      </div>
+    
   </body>
 </html>
 {% endautoescape %}
