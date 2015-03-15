@@ -59,7 +59,10 @@ class MainPage(webapp2.RequestHandler):
 
         logging.debug(lulu_items)
 
+        date_string = datetime.datetime.now().strftime("%A, %B %d")
+
         template_values = {
+            "date_string" : date_string,
             "lulu_items" : lulu_items,
             "bates_items" : bates_items,
             "pom_items" : pom_items,

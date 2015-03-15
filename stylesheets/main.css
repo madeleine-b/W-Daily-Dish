@@ -1,4 +1,4 @@
-h1 {
+.header {
 	text-align: center;
 }
 
@@ -11,5 +11,12 @@ h1 {
 .row {
 	margin-right: auto;
 	margin-left: auto;
+	padding-bottom: 20px;
+}
+
+@media (min-width: 750px) { /*equivalent to @screen-sm-min but I'm not using LESS*/
+	.row {
+		padding-bottom: 50px;
+	}
 }
 
