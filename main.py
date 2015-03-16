@@ -7,6 +7,7 @@ import urllib2
 import jinja2
 import webapp2
 import datetime
+import pytz
 from pytz import timezone
 
 from bs4 import BeautifulSoup
@@ -61,6 +62,7 @@ class MainPage(webapp2.RequestHandler):
         date_string = datetime.datetime.now().strftime("%A, %B %d")
 
         template_values = {
+            "date_string" : date_string,
             "lulu_items" : lulu_items,
             "bates_items" : bates_items,
             "pom_items" : pom_items,
@@ -70,7 +72,7 @@ class MainPage(webapp2.RequestHandler):
         self.response.write(template.render(template_values))
 
     def menuUrls(self):
-        localtz = timezone('US/Eastern')
+        localtz = pytz.timezone('America/New_York') #we shall see if this is working as it's supposed to
         now = localtz.localize(datetime.datetime.now())
 
         dd = "%d" % (now.day)
