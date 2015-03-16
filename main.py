@@ -6,8 +6,8 @@ import urllib2
 
 import jinja2
 import webapp2
-import datetime
-import pytz
+from datetime import datetime
+from pytz.gae import pytz
 from pytz import timezone
 
 from bs4 import BeautifulSoup
@@ -22,7 +22,11 @@ class MainPage(webapp2.RequestHandler):
     def get(self):
         template = JINJA_ENVIRONMENT.get_template('index.html')
 
-        menus = self.menuUrls()
+        now = datetime.utcnow()
+        now = now.replace(tzinfo=pytz.utc)
+        real_localtz = datetime.astimezone(now, pytz.timezone('America/New_York'))
+
+        menus = self.menuUrls(real_localtz)
 
         lulu = urllib2.urlopen(menus[0]).read()
         bates = urllib2.urlopen(menus[1]).read()
@@ -59,11 +63,11 @@ class MainPage(webapp2.RequestHandler):
         stone_items = self.cleanList(stone_items)
         tower_items = self.cleanList(tower_items)
 
-        lulu_open = self.luluOpen()
-        bates_open = pom_open = tower_open = self.bptOpen()
-        stone_open = self.stoneOpen()
+        lulu_open = self.luluOpen(real_localtz)
+        bates_open = pom_open = tower_open = self.bptOpen(real_localtz)
+        stone_open = self.stoneOpen(real_localtz)
 
-        date_string = datetime.datetime.now().strftime("%A, %B %d")
+        date_string = real_localtz.strftime("%A, %B %d")
 
         template_values = {
             "date_string" : date_string,
@@ -80,12 +84,9 @@ class MainPage(webapp2.RequestHandler):
         }
         self.response.write(template.render(template_values))
 
-    def menuUrls(self):
-        localtz = pytz.timezone('America/New_York') #we shall see if this is working as it's supposed to
-        now = localtz.localize(datetime.datetime.now())
-
-        dd = "%d" % (now.day)
-        mm = "%d" % (now.month)
+    def menuUrls(self, real_localtz):
+        dd = "%d" % (real_localtz.day)
+        mm = "%d" % (real_localtz.month)
 
         if len(dd) < 2:
             dd = "0"+dd
@@ -99,8 +100,6 @@ class MainPage(webapp2.RequestHandler):
         for i in range(len(menus)):
             menus[i] = "http://www.wellesleyfresh.com/"+menus[i]
 
-        logging.warning(menus)
-        logging.debug(menus)
         return menus
 
     def cleanList(self, items):
@@ -142,42 +141,34 @@ class MainPage(webapp2.RequestHandler):
         #logging.debug(temp)
         return temp
 
-    def bptOpen(self):
-        localtz = pytz.timezone('America/New_York') #we shall see if this is working as it's supposed to
-        now = localtz.localize(datetime.datetime.now())
-
-        hour = now.hour
-        minute = now.minute
+    def bptOpen(self, real_localtz):
+        hour = real_localtz.hour 
+        minute = real_localtz.minute
 
         hm_sum = hour + (minute/60.0)
 
-        day_of_week = now.isoweekday() #mon = 1; sun = 7
+        day_of_week = real_localtz.isoweekday() #mon = 1; sun = 7
 
-        if day_of_week==6 or day_of_week==7:
+        if day_of_week==6 or day_of_week==7: #saturday and sunday hours
             return (hm_sum>=8.5 and hm_sum<=14) or (hm_sum>=17 and hm_sum<=18.5)
+
         return (hm_sum>=7 and hm_sum<=10) or (hm_sum>=11.5 and hm_sum<=14) or (hm_sum>=17 and hm_sum<=19)
 
-    def luluOpen(self):
-        localtz = pytz.timezone('America/New_York') #we shall see if this is working as it's supposed to
-        now = localtz.localize(datetime.datetime.now())
-
-        hour = now.hour
-        minute = now.minute
+    def luluOpen(self, real_localtz):
+        hour = real_localtz.hour 
+        minute = real_localtz.minute
 
         hm_sum = hour + (minute/60.0)
 
         return (hm_sum>=7 and hm_sum<=10) or (hm_sum>=11.5 and hm_sum<=14) or (hm_sum>=17 and hm_sum<=22)
-
-    def stoneOpen(self):
-        localtz = pytz.timezone('America/New_York') #we shall see if this is working as it's supposed to
-        now = localtz.localize(datetime.datetime.now())
-
-        day_of_week = now.isoweekday() #mon = 1; sun = 7
+        
+    def stoneOpen(self, real_localtz):
+        day_of_week = real_localtz.isoweekday() #mon = 1; sun = 7
 
         if day_of_week==6 or day_of_week==7:
             return False
         
-        return self.luluOpen()
+        return self.luluOpen(real_localtz)
 
 application = webapp2.WSGIApplication([
     ('/', MainPage)
