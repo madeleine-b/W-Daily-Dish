@@ -59,15 +59,24 @@ class MainPage(webapp2.RequestHandler):
         stone_items = self.cleanList(stone_items)
         tower_items = self.cleanList(tower_items)
 
+        lulu_open = self.luluOpen()
+        bates_open = pom_open = tower_open = self.bptOpen()
+        stone_open = self.stoneOpen()
+
         date_string = datetime.datetime.now().strftime("%A, %B %d")
 
         template_values = {
             "date_string" : date_string,
             "lulu_items" : lulu_items,
+            "lulu_open" : lulu_open,
             "bates_items" : bates_items,
+            "bates_open" : bates_open,
             "pom_items" : pom_items,
+            "pom_open" : pom_open,
             "stone_items" : stone_items,
+            "stone_open" : stone_open,
             "tower_items" : tower_items,
+            "tower_open" : tower_open,
         }
         self.response.write(template.render(template_values))
 
@@ -132,6 +141,43 @@ class MainPage(webapp2.RequestHandler):
         #logging.warning(temp)
         #logging.debug(temp)
         return temp
+
+    def bptOpen(self):
+        localtz = pytz.timezone('America/New_York') #we shall see if this is working as it's supposed to
+        now = localtz.localize(datetime.datetime.now())
+
+        hour = now.hour
+        minute = now.minute
+
+        hm_sum = hour + (minute/60.0)
+
+        day_of_week = now.isoweekday() #mon = 1; sun = 7
+
+        if day_of_week==6 or day_of_week==7:
+            return (hm_sum>=8.5 and hm_sum<=14) or (hm_sum>=17 and hm_sum<=18.5)
+        return (hm_sum>=7 and hm_sum<=10) or (hm_sum>=11.5 and hm_sum<=14) or (hm_sum>=17 and hm_sum<=19)
+
+    def luluOpen(self):
+        localtz = pytz.timezone('America/New_York') #we shall see if this is working as it's supposed to
+        now = localtz.localize(datetime.datetime.now())
+
+        hour = now.hour
+        minute = now.minute
+
+        hm_sum = hour + (minute/60.0)
+
+        return (hm_sum>=7 and hm_sum<=10) or (hm_sum>=11.5 and hm_sum<=14) or (hm_sum>=17 and hm_sum<=22)
+
+    def stoneOpen(self):
+        localtz = pytz.timezone('America/New_York') #we shall see if this is working as it's supposed to
+        now = localtz.localize(datetime.datetime.now())
+
+        day_of_week = now.isoweekday() #mon = 1; sun = 7
+
+        if day_of_week==6 or day_of_week==7:
+            return False
+        
+        return self.luluOpen()
 
 application = webapp2.WSGIApplication([
     ('/', MainPage)
