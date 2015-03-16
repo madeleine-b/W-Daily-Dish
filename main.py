@@ -7,6 +7,7 @@ import urllib2
 import jinja2
 import webapp2
 import datetime
+from pytz import timezone
 
 from bs4 import BeautifulSoup
 
@@ -57,12 +58,9 @@ class MainPage(webapp2.RequestHandler):
         stone_items = self.cleanList(stone_items)
         tower_items = self.cleanList(tower_items)
 
-        logging.debug(lulu_items)
-
         date_string = datetime.datetime.now().strftime("%A, %B %d")
 
         template_values = {
-            "date_string" : date_string,
             "lulu_items" : lulu_items,
             "bates_items" : bates_items,
             "pom_items" : pom_items,
@@ -72,7 +70,8 @@ class MainPage(webapp2.RequestHandler):
         self.response.write(template.render(template_values))
 
     def menuUrls(self):
-        now = datetime.datetime.now()
+        localtz = timezone('US/Eastern')
+        now = localtz.localize(datetime.datetime.now())
 
         dd = "%d" % (now.day)
         mm = "%d" % (now.month)
@@ -88,6 +87,9 @@ class MainPage(webapp2.RequestHandler):
 
         for i in range(len(menus)):
             menus[i] = "http://www.wellesleyfresh.com/"+menus[i]
+
+        logging.warning(menus)
+        logging.debug(menus)
         return menus
 
     def cleanList(self, items):
@@ -107,6 +109,8 @@ class MainPage(webapp2.RequestHandler):
             for k in keywords:
                 i = i.replace(k, '')
             
+            i = "".join([x if ord(x) < 128 else '?' for x in i])
+
             i = i.strip()
 
             pos_list = i.split(",")
@@ -123,6 +127,8 @@ class MainPage(webapp2.RequestHandler):
                     if p not in temp and p.lower() not in keywords and len(p)>1 and p[0] in alphabet:
                         temp.append(p) 
 
+        #logging.warning(temp)
+        #logging.debug(temp)
         return temp
 
 application = webapp2.WSGIApplication([
