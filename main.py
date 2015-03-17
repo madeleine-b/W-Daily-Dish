@@ -8,6 +8,8 @@ from datetime import datetime
 from pytz.gae import pytz
 from pytz import timezone
 
+from google.appengine.ext import ndb
+
 from bs4 import BeautifulSoup
 
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -15,92 +17,44 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 
-class MainPage(webapp2.RequestHandler):
+class DiningHall:
 
-    def get(self):
-        template = JINJA_ENVIRONMENT.get_template('index.html')
+    def __init__(self, hall_name, menus, local_tz):
+        if hall_name == "lulu":
+            self.food_items=[] 
+            self.food_items = self.getFoodItems(menus[0])
+            self.isOpen = self.luluOpen(local_tz)
+        elif hall_name == "bates":
+            self.food_items=[]
+            self.food_items = self.getFoodItems(menus[1])
+            self.isOpen = self.bptOpen(local_tz)
+        elif hall_name == "pom":
+            self.food_items=[]
+            self.food_items = self.getFoodItems(menus[2])
+            self.isOpen = self.bptOpen(local_tz)
+        elif hall_name == "stone":
+            self.food_items=[]
+            self.food_items = self.getFoodItems(menus[3])
+            self.isOpen = self.stoneOpen(local_tz)
+        elif hall_name == "tower":
+            self.food_items=[]
+            self.food_items = self.getFoodItems(menus[4])
+            self.isOpen = self.bptOpen(local_tz)
+        else:
+            logging.debug("INVALID DINING HALL")
+            self.food_items=[]
+            self.food_items.append("INVALID DINING HALL")
 
-        now = datetime.utcnow()
-        now = now.replace(tzinfo=pytz.utc)
-        real_localtz = datetime.astimezone(now, pytz.timezone('America/New_York'))
+    def getFoodItems(self, hallUrl):
+        hall = urllib2.urlopen(hallUrl).read()
+        hall_soup = BeautifulSoup(hall).div
 
-        menus = self.menuUrls(real_localtz)
+        for node in hall_soup.findAll('p'):
+            self.food_items.append(''.join(node.findAll(text=True)).encode('utf-8'))
 
-        lulu = urllib2.urlopen(menus[0]).read()
-        bates = urllib2.urlopen(menus[1]).read()
-        pom = urllib2.urlopen(menus[2]).read()
-        stone = urllib2.urlopen(menus[3]).read()
-        tower = urllib2.urlopen(menus[4]).read()
+        return self.cleanList()
 
-        lulu_soup = BeautifulSoup(lulu).div
-        bates_soup = BeautifulSoup(bates).div
-        pom_soup = BeautifulSoup(pom).div
-        stone_soup = BeautifulSoup(stone).div
-        tower_soup = BeautifulSoup(tower).div
-
-        lulu_items = []
-        bates_items = []
-        pom_items = []
-        stone_items = []
-        tower_items = []
-
-        for node in lulu_soup.findAll('p'):
-            lulu_items.append(''.join(node.findAll(text=True)).encode('utf-8'))
-        for node in bates_soup.findAll('p'):
-            bates_items.append(''.join(node.findAll(text=True)).encode('utf-8'))
-        for node in pom_soup.findAll('p'):
-            pom_items.append(''.join(node.findAll(text=True)).encode('utf-8'))
-        for node in stone_soup.findAll('p'):
-            stone_items.append(''.join(node.findAll(text=True)).encode('utf-8'))
-        for node in tower_soup.findAll('p'):
-            tower_items.append(''.join(node.findAll(text=True)).encode('utf-8'))
-
-        lulu_items = self.cleanList(lulu_items)
-        bates_items = self.cleanList(bates_items)
-        pom_items = self.cleanList(pom_items)
-        stone_items = self.cleanList(stone_items)
-        tower_items = self.cleanList(tower_items)
-
-        lulu_open = self.luluOpen(real_localtz)
-        bates_open = pom_open = tower_open = self.bptOpen(real_localtz)
-        stone_open = self.stoneOpen(real_localtz)
-
-        date_string = real_localtz.strftime("%A, %B %d")
-
-        template_values = {
-            "date_string" : date_string,
-            "lulu_items" : lulu_items,
-            "lulu_open" : lulu_open,
-            "bates_items" : bates_items,
-            "bates_open" : bates_open,
-            "pom_items" : pom_items,
-            "pom_open" : pom_open,
-            "stone_items" : stone_items,
-            "stone_open" : stone_open,
-            "tower_items" : tower_items,
-            "tower_open" : tower_open,
-        }
-        self.response.write(template.render(template_values))
-
-    def menuUrls(self, real_localtz):
-        dd = "%d" % (real_localtz.day)
-        mm = "%d" % (real_localtz.month)
-
-        if len(dd) < 2:
-            dd = "0"+dd
-        if len(mm) < 2:
-            mm = "0"+mm
-
-        menus = ['menus/bplc/menu_'+mm+dd+'.htm','menus/bates/menu_'+mm+dd+'.htm','menus/pomeroy/menu_'+mm+dd+'.htm']
-        menus.append('menus/stonedavis/menu_'+mm+dd+'.htm')
-        menus.append('menus/tower/menu_'+mm+dd+'.htm')
-
-        for i in range(len(menus)):
-            menus[i] = "http://www.wellesleyfresh.com/"+menus[i]
-
-        return menus
-
-    def cleanList(self, items):
+    def cleanList(self):
         keywords = [" if ", "Offered Daily:", "Pure", "pure", "Offered", "Offered daily", "Offered daily:", "Home-style Dinner", "Homestyle Lunch", "Homestyle lunch", "Homestyle Dinner", "Homestyle dinner", "Late Night", "Late Nite", "Late night", "Hot Bar", "hot bar", "Hot bar", "Home-style Lunch", "!supportLineBreakNewLine", "endif", "Continental", "Pizza/Pasta", "Pizza/pasta", "breakfast", "Served", "Brunch", "Dinner", "Daily", "daily", "Lunch", "Breakfast", "served", "continental", "brunch", "lunch", "dinner", "grill", "fusion", "daily", "continental breakfast", "soup", "pizza", "homestyle", "home-style", "home", "style"]
         alphabet = []
         for p in range(len(string.ascii_letters)):
@@ -108,7 +62,7 @@ class MainPage(webapp2.RequestHandler):
 
         temp = []
 
-        for i in items:
+        for i in self.food_items:
             i = i.replace(b'\r\n', ' ').replace(b'\xc2\xa0', ' ').replace(b'\xe2\x80\x99', '\'').replace(b'\xc2\x92', '\'').replace(b'\x26', '&')
             i = re.sub("[\(\[].*?[\)\]]", "", i) #removes stuff between parentheses and brackets
             i = ' '.join(i.split()) #removes more than one space between words
@@ -135,8 +89,6 @@ class MainPage(webapp2.RequestHandler):
                     if p not in temp and p.lower() not in keywords and len(p)>1 and p[0] in alphabet:
                         temp.append(p) 
 
-        #logging.warning(temp)
-        #logging.debug(temp)
         return temp
 
     def bptOpen(self, real_localtz):
@@ -168,6 +120,55 @@ class MainPage(webapp2.RequestHandler):
         
         return self.luluOpen(real_localtz)
 
+class MainPage(webapp2.RequestHandler):
+
+    def get(self):
+        template = JINJA_ENVIRONMENT.get_template('index.html')
+
+        now = datetime.utcnow()
+        now = now.replace(tzinfo=pytz.utc)
+        real_localtz = datetime.astimezone(now, pytz.timezone('America/New_York'))
+
+        menus = self.menuUrls(real_localtz)
+
+        lulu = DiningHall("lulu", menus, real_localtz)
+        bates = DiningHall("bates", menus, real_localtz)
+        pom = DiningHall("pom", menus, real_localtz)
+        stone = DiningHall("stone", menus, real_localtz)
+        tower = DiningHall("tower", menus, real_localtz)
+
+        date_string = real_localtz.strftime("%A, %B %d")
+
+        template_values = {
+            "date_string" : date_string,
+            "lulu" : lulu,
+            "bates" : bates,
+            "pom" : pom,
+            "stone" : stone,
+            "tower" : tower,
+        }
+
+        self.response.write(template.render(template_values))
+
+    def menuUrls(self, real_localtz):
+        dd = "%d" % (real_localtz.day)
+        mm = "%d" % (real_localtz.month)
+
+        if len(dd) < 2:
+            dd = "0"+dd
+        if len(mm) < 2:
+            mm = "0"+mm
+
+        menus = ['menus/bplc/menu_'+mm+dd+'.htm','menus/bates/menu_'+mm+dd+'.htm','menus/pomeroy/menu_'+mm+dd+'.htm']
+        menus.append('menus/stonedavis/menu_'+mm+dd+'.htm')
+        menus.append('menus/tower/menu_'+mm+dd+'.htm')
+
+        for i in range(len(menus)):
+            menus[i] = "http://www.wellesleyfresh.com/"+menus[i]
+
+        return menus
+
+
 class Favorite(webapp2.RequestHandler):
     def post(self):
         self.response.write('<html><body>You selected:<pre>')
@@ -176,5 +177,5 @@ class Favorite(webapp2.RequestHandler):
 
 application = webapp2.WSGIApplication([
     ('/', MainPage),
-    ('/submit', Favorite),
+    ('submit', Favorite),
 ], debug=True)
