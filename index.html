@@ -27,7 +27,7 @@
         <p>
           <ul>
           {% for item in lulu_items %}
-            <li>{{item}}</li>
+            <li>{{item}} <input type="checkbox" name="{{item}}" value="1"></li>
           {% endfor %}
           </ul>
         </p>
@@ -37,12 +37,12 @@
       <div id="Bates" class="menu-box col-xs-2">
         <div class="wrapper">
           <h2>Bates</h2>
-          <h4 style="{{'color:#268727;' if lulu_open else 'color:#EB240E;'}}" class="open_indicator"> ({{ 'open' if bates_open else 'closed' }})</h4>
+          <h4 style="{{'color:#268727;' if bates_open else 'color:#EB240E;'}}" class="open_indicator"> ({{ 'open' if bates_open else 'closed' }})</h4>
         </div>
         <p>
           <ul>
           {% for item in bates_items %}
-            <li>{{item}}</li>
+            <li>{{item}} <input type="checkbox" name="{{item}}" value="1"></li>
           {% endfor %}
           </ul>
         </p>
@@ -51,12 +51,12 @@
       <div id="Pom" class="menu-box col-xs-2">
         <div class="wrapper">
           <h2>Pom</h2>
-          <h4 style="{{'color:#268727;' if lulu_open else 'color:#EB240E;'}}" class="open_indicator">({{ 'open' if pom_open else 'closed' }})</h4>
+          <h4 style="{{'color:#268727;' if pom_open else 'color:#EB240E;'}}" class="open_indicator">({{ 'open' if pom_open else 'closed' }})</h4>
         </div>
         <p>
           <ul>
           {% for item in pom_items %}
-            <li>{{item}}</li>
+            <li>{{item}} <input type="checkbox" name="{{item}}" value="1"></li>
           {% endfor %}
           </ul>
         </p>
@@ -65,12 +65,12 @@
       <div id="Stone" class="menu-box col-xs-2">
         <div class="wrapper">
           <h2>Stone-D</h2>
-          <h4 style="{{'color:#268727;' if lulu_open else 'color:#EB240E;'}}" class="open_indicator">({{ 'open' if stone_open else 'closed' }})</h4>
+          <h4 style="{{'color:#268727;' if stone_open else 'color:#EB240E;'}}" class="open_indicator">({{ 'open' if stone_open else 'closed' }})</h4>
         </div>
         <p>
           <ul>
           {% for item in stone_items %}
-            <li>{{item}}</li>
+            <li>{{item}} <input type="checkbox" name="{{item}}" value="1"></li>
           {% endfor %}
           </ul>
         </p>
@@ -79,12 +79,12 @@
       <div id="Tower" class="menu-box col-xs-2">
         <div class="wrapper">
           <h2>Tower</h2>
-          <h4 style="{{'color:#268727;' if lulu_open else 'color:#EB240E;'}}" class="open_indicator">({{ 'open' if tower_open else 'closed' }})</h4>
+          <h4 style="{{'color:#268727;' if tower_open else 'color:#EB240E;'}}" class="open_indicator">({{ 'open' if tower_open else 'closed' }})</h4>
         </div>
         <p>
           <ul>
           {% for item in tower_items %}
-            <li>{{item}}</li>
+            <li>{{item}} <input type="checkbox" name="{{item}}" value="1"></li>
           {% endfor %}
           </ul>
         </p>

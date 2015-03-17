@@ -1,8 +1,6 @@
-import os
-import logging
-import string
-import re
+import os, logging, string, re
 import urllib2
+import cgi
 
 import jinja2
 import webapp2
@@ -103,7 +101,7 @@ class MainPage(webapp2.RequestHandler):
         return menus
 
     def cleanList(self, items):
-        keywords = [" if ", "Offered Daily:", "Offered", "Offered daily", "Offered daily:", "Home-style Dinner", "Homestyle Lunch", "Homestyle lunch", "Homestyle Dinner", "Homestyle dinner", "Late Night", "Late Nite", "Late night", "Hot Bar", "hot bar", "Hot bar", "Home-style Lunch", "!supportLineBreakNewLine", "endif", "Continental", "Pizza/Pasta", "Pizza/pasta", "breakfast", "Served", "Brunch", "Dinner", "Daily", "daily", "Lunch", "Breakfast", "served", "continental", "brunch", "lunch", "dinner", "grill", "fusion", "daily", "continental breakfast", "soup", "pizza", "homestyle", "home-style", "home", "style"]
+        keywords = [" if ", "Offered Daily:", "Pure", "pure", "Offered", "Offered daily", "Offered daily:", "Home-style Dinner", "Homestyle Lunch", "Homestyle lunch", "Homestyle Dinner", "Homestyle dinner", "Late Night", "Late Nite", "Late night", "Hot Bar", "hot bar", "Hot bar", "Home-style Lunch", "!supportLineBreakNewLine", "endif", "Continental", "Pizza/Pasta", "Pizza/pasta", "breakfast", "Served", "Brunch", "Dinner", "Daily", "daily", "Lunch", "Breakfast", "served", "continental", "brunch", "lunch", "dinner", "grill", "fusion", "daily", "continental breakfast", "soup", "pizza", "homestyle", "home-style", "home", "style"]
         alphabet = []
         for p in range(len(string.ascii_letters)):
             alphabet.append(string.ascii_letters[p])
@@ -170,6 +168,13 @@ class MainPage(webapp2.RequestHandler):
         
         return self.luluOpen(real_localtz)
 
+class Favorite(webapp2.RequestHandler):
+    def post(self):
+        self.response.write('<html><body>You selected:<pre>')
+        self.response.write(cgi.escape(self.request.get('content')))
+        self.response.write('</pre></body></html>')
+
 application = webapp2.WSGIApplication([
-    ('/', MainPage)
+    ('/', MainPage),
+    ('/submit', Favorite),
 ], debug=True)
