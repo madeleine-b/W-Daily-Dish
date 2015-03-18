@@ -1,3 +1,7 @@
+div.checkbox li {
+	list-style-type: none;
+}
+
 .header {
 	text-align: center;
 }

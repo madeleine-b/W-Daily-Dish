@@ -27,7 +27,9 @@
         <p>
           <ul>
           {% for item in lulu.food_items %}
-            <li>{{item}} <input type="checkbox" name="{{item}}" value="1"></li>
+            <div class="checkbox">
+              <input type="checkbox" name="{{item}}" value="1"> <li>{{item}}</li>
+            </div>
           {% endfor %}
           </ul>
         </p>
@@ -42,7 +44,9 @@
         <p>
           <ul>
           {% for item in bates.food_items %}
-            <li>{{item}} <input type="checkbox" name="{{item}}" value="1"></li>
+            <div class="checkbox">
+              <input type="checkbox" name="{{item}}" value="1"> <li>{{item}}</li>
+            </div>
           {% endfor %}
           </ul>
         </p>
@@ -56,7 +60,9 @@
         <p>
           <ul>
           {% for item in pom.food_items %}
-            <li>{{item}} <input type="checkbox" name="{{item}}" value="1"></li>
+            <div class="checkbox">
+              <input type="checkbox" name="{{item}}" value="1"> <li>{{item}}</li>
+            </div>
           {% endfor %}
           </ul>
         </p>
@@ -70,7 +76,9 @@
         <p>
           <ul>
           {% for item in stone.food_items %}
-            <li>{{item}} <input type="checkbox" name="{{item}}" value="1"></li>
+            <div class="checkbox">
+              <input type="checkbox" name="{{item}}" value="1"> <li>{{item}}</li>
+            </div>
           {% endfor %}
           </ul>
         </p>
@@ -84,7 +92,9 @@
         <p>
           <ul>
           {% for item in tower.food_items %}
-            <li>{{item}} <input type="checkbox" name="{{item}}" value="1"></li>
+            <div class="checkbox">
+              <input type="checkbox" name="{{item}}" value="1"> <li>{{item}}</li>
+            </div>
           {% endfor %}
           </ul>
         </p> 

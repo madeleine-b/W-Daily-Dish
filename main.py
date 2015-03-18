@@ -71,7 +71,7 @@ class DiningHall:
             for k in keywords:
                 i = i.replace(k, '')
             
-            i = "".join([x if ord(x) < 128 else '?' for x in i])
+            i = "".join([x if ord(x) < 128 else '' for x in i])
 
             i = i.strip()
 
@@ -177,5 +177,5 @@ class Favorite(webapp2.RequestHandler):
 
 application = webapp2.WSGIApplication([
     ('/', MainPage),
-    ('submit', Favorite),
+    ('submit', Favorite)
 ], debug=True)
