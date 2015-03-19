@@ -21,29 +21,33 @@ class DiningHall:
 
     def __init__(self, hall_name, menus, local_tz):
         if hall_name == "lulu":
+            self.name = "lulu"
             self.food_items=[] 
             self.food_items = self.getFoodItems(menus[0])
             self.isOpen = self.luluOpen(local_tz)
         elif hall_name == "bates":
+            self.name = "bates"
             self.food_items=[]
             self.food_items = self.getFoodItems(menus[1])
             self.isOpen = self.bptOpen(local_tz)
         elif hall_name == "pom":
+            self.name = "pom"
             self.food_items=[]
             self.food_items = self.getFoodItems(menus[2])
             self.isOpen = self.bptOpen(local_tz)
         elif hall_name == "stone":
+            self.name = "stone"
             self.food_items=[]
             self.food_items = self.getFoodItems(menus[3])
             self.isOpen = self.stoneOpen(local_tz)
         elif hall_name == "tower":
+            self.name = "tower"
             self.food_items=[]
             self.food_items = self.getFoodItems(menus[4])
             self.isOpen = self.bptOpen(local_tz)
         else:
             logging.debug("INVALID DINING HALL")
-            self.food_items=[]
-            self.food_items.append("INVALID DINING HALL")
+            self.name = "INVALID DINING HALL"
 
     def getFoodItems(self, hallUrl):
         hall = urllib2.urlopen(hallUrl).read()
@@ -81,10 +85,14 @@ class DiningHall:
             i = i.replace(b'\r\n', ' ').replace(b'\xc2\xa0', ' ').replace(b'\xe2\x80\x99', '\'').replace(b'\xc2\x92', '\'').replace(b'\x26', '&')
             i = re.sub("[\(\[].*?[\)\]]", "", i) #removes stuff between parentheses and brackets
             i = ' '.join(i.split()) #removes more than one space between words
-            i = i.replace(" and", ',').replace(b'\x2D', '').replace("or ", ',') #sometimes the and-replacement is tricky
+            i = i.replace(" and", ',').replace(b'\x2D', '-').replace("or ", ',') #sometimes the and-replacement is tricky
 
             for k in keywords:
                 i = i.replace(k, '')
+
+            for b in bold_items:
+                if len(b)>1:
+                    i = i.replace(b, b+',')
             
             i = "".join([x if ord(x) < 128 else '' for x in i])
 
@@ -159,6 +167,9 @@ class MainPage(webapp2.RequestHandler):
         tower = DiningHall("tower", menus, real_localtz)
 
         date_string = real_localtz.strftime("%A, %B %d")
+
+        #logging.info("PAY ATTENTION TO TOWER SPECIAL BB")
+        #logging.info(tower.food_items)
 
         template_values = {
             "date_string" : date_string,
