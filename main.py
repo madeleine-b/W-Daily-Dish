@@ -50,15 +50,25 @@ class DiningHall:
             self.name = "INVALID DINING HALL"
 
     def getFoodItems(self, hallUrl):
-        hall = urllib2.urlopen(hallUrl).read()
-        hall_soup = BeautifulSoup(hall).div
-
-        for node in hall_soup.findAll('p'):
-            self.food_items.append(''.join(node.findAll(text=True)).encode('utf-8'))
-
         bold_items = []
-        for node in hall_soup.findAll('b'):
-            bold_items.append(''.join(node.findAll(text=True)).encode('utf-8'))
+
+        try:
+            hall = urllib2.urlopen(hallUrl).read()
+            hall_soup = BeautifulSoup(hall).div
+
+            for node in hall_soup.findAll('p'):
+                self.food_items.append(''.join(node.findAll(text=True)).encode('utf-8'))
+
+            for node in hall_soup.findAll('b'):
+                bold_items.append(''.join(node.findAll(text=True)).encode('utf-8'))
+
+        except urllib2.HTTPError as e:
+            logging.warning("HTTP Error:")
+            logging.warning(e.code)
+            
+        except urllib2.URLError as e:
+            logging.warning("URL Error (not HTTP):")
+            logging.warning(e.args)
 
         return self.cleanList(bold_items)
 
@@ -90,7 +100,7 @@ class DiningHall:
             for k in keywords:
                 i = i.replace(k, '')
 
-            for b in bold_items:
+            for b in bold_items: #solving issue with Tower having bolded menu categories in same paragraph as foods 
                 if len(b)>1:
                     i = i.replace(b, b+',')
             
@@ -168,9 +178,6 @@ class MainPage(webapp2.RequestHandler):
 
         date_string = real_localtz.strftime("%A, %B %d")
 
-        #logging.info("PAY ATTENTION TO TOWER SPECIAL BB")
-        #logging.info(tower.food_items)
-
         template_values = {
             "date_string" : date_string,
             "lulu" : lulu,
@@ -183,7 +190,7 @@ class MainPage(webapp2.RequestHandler):
         self.response.write(template.render(template_values))
 
     def menuUrls(self, real_localtz):
-        dd = "%d" % (real_localtz.day)
+        dd = "%d" % (real_localtz.day+1)
         mm = "%d" % (real_localtz.month)
 
         if len(dd) < 2:
