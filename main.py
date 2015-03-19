@@ -52,15 +52,30 @@ class DiningHall:
         for node in hall_soup.findAll('p'):
             self.food_items.append(''.join(node.findAll(text=True)).encode('utf-8'))
 
-        return self.cleanList()
+        bold_items = []
+        for node in hall_soup.findAll('b'):
+            bold_items.append(''.join(node.findAll(text=True)).encode('utf-8'))
 
-    def cleanList(self):
-        keywords = [" if ", "Offered Daily:", "Pure", "pure", "Offered", "Offered daily", "Offered daily:", "Home-style Dinner", "Homestyle Lunch", "Homestyle lunch", "Homestyle Dinner", "Homestyle dinner", "Late Night", "Late Nite", "Late night", "Hot Bar", "hot bar", "Hot bar", "Home-style Lunch", "!supportLineBreakNewLine", "endif", "Continental", "Pizza/Pasta", "Pizza/pasta", "breakfast", "Served", "Brunch", "Dinner", "Daily", "daily", "Lunch", "Breakfast", "served", "continental", "brunch", "lunch", "dinner", "grill", "fusion", "daily", "continental breakfast", "soup", "pizza", "homestyle", "home-style", "home", "style"]
+        return self.cleanList(bold_items)
+
+    def cleanList(self, bold_items):
+        keywords = [" if ", "Offered Daily:", "Offered", "Offered daily", "Offered daily:",  "!supportLineBreakNewLine", "endif", "Served", "Daily", "daily", "served"]
+        #keywords += ["HomeStyle", "Home-style Dinner", "Homestyle Lunch", "Homestyle lunch", "Homestyle Dinner", "Homestyle dinner", "Late Night", "Late Nite", "Late night", "Hot Bar", "hot bar", "Hot bar", "Home-style Lunch", "Continental","breakfast", "Brunch", "Dinner"]
+        #keywords += ["Lunch", "Breakfast", "Pizza/Pasta", "Pizza/pasta", "Pure", "pure","continental", "brunch", "lunch", "dinner", "grill", "fusion", "daily", "continental breakfast", "soup", "pizza", "homestyle", "home-style"]
         alphabet = []
         for p in range(len(string.ascii_letters)):
             alphabet.append(string.ascii_letters[p])
 
         temp = []
+
+        for i in range(len(bold_items)):
+            b = bold_items[i]
+            b = b.replace(b'\r\n', ' ').replace(b'\xc2\xa0', ' ').replace(b'\xe2\x80\x99', '\'').replace(b'\xc2\x92', '\'').replace(b'\x26', '&amp;')
+            b = re.sub("[\(\[].*?[\)\]]", "", b) #removes stuff between parentheses and brackets
+            b = ' '.join(b.split()) #removes more than one space between words
+            b = "".join([x if ord(x) < 128 else '' for x in b])
+            b = b.strip()
+            bold_items[i] = b
 
         for i in self.food_items:
             i = i.replace(b'\r\n', ' ').replace(b'\xc2\xa0', ' ').replace(b'\xe2\x80\x99', '\'').replace(b'\xc2\x92', '\'').replace(b'\x26', '&')
@@ -73,21 +88,27 @@ class DiningHall:
             
             i = "".join([x if ord(x) < 128 else '' for x in i])
 
+            i = i.replace("Hard Boiled Eggs", "Hard-boiled Eggs").replace("Hardboiled Eggs", "Hard-boiled Eggs") #neurotic grammatical consistency
+
             i = i.strip()
 
             pos_list = i.split(",")
             for p in pos_list:
                 p = p.strip()
-                if p.lower() not in keywords and len(p)>1 and p[0] in alphabet:
-                    temp.append(p) 
+                if p.lower() not in keywords and len(p)>1 and p[0] in alphabet and p not in bold_items:
+                    temp.append(p)
+                elif len(p)>1 and p in bold_items:
+                    temp.append("*b*"+p) 
 
             pos_list = i.split(";")
             if len(pos_list) > 1:
                 temp.pop() #means we found a list separated by semi-colons and don't want the original list to be added as one item
                 for p in pos_list:
                     p = p.strip()
-                    if p not in temp and p.lower() not in keywords and len(p)>1 and p[0] in alphabet:
-                        temp.append(p) 
+                    if p not in temp and p.lower() not in keywords and len(p)>1 and p[0] in alphabet and p not in bold_items:
+                        temp.append(p)
+                    elif len(p)>1 and p in bold_items:
+                        temp.append("*b"+p)
 
         return temp
 
@@ -170,12 +191,18 @@ class MainPage(webapp2.RequestHandler):
 
 
 class Favorite(webapp2.RequestHandler):
-    def post(self):
-        self.response.write('<html><body>You selected:<pre>')
-        self.response.write(cgi.escape(self.request.get('content')))
-        self.response.write('</pre></body></html>')
+    def get(self): #get or post??? these are the questions
+        submit_template = JINJA_ENVIRONMENT.get_template('submission.html')
+
+        template_values = {}
+        template_values["foods"] = []
+        for item in self.request.arguments():
+            template_values["foods"].append(item)
+        #logging.info(self.request.arguments())
+
+        self.response.out.write(submit_template.render(template_values))
 
 application = webapp2.WSGIApplication([
     ('/', MainPage),
-    ('submit', Favorite)
+    ('/submission', Favorite)
 ], debug=True)

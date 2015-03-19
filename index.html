@@ -14,92 +14,131 @@
 
   <body>
     <div class="header">
-      <h1>Wellesley Fresh V2.0</h1>
+      <a href="/"><h1>Wellesley Fresh V2.0</h1></a>
       <h3>{{ date_string }}</h3>
     </div>
 
     <div class="row">
-      <div id="Lulu" class="menu-box col-xs-2">
-        <div class="wrapper">
-          <h2>Lulu</h2>
-          <h4 style="{{'color:#268727;' if lulu.isOpen else 'color:#EB240E;'}}" class="open_indicator">({{ 'open' if lulu.isOpen else 'closed' }})</h4>
-        </div>
-        <p>
-          <ul>
-          {% for item in lulu.food_items %}
-            <div class="checkbox">
-              <input type="checkbox" name="{{item}}" value="1"> <li>{{item}}</li>
-            </div>
-          {% endfor %}
-          </ul>
-        </p>
-
+      <div class="button-box col-xs-2">
+        <button id="submit_prefs_button" class="btn btn-primary" form="pref_form" type="submit">Submit Favorite Foods</button>
       </div>
+    </div>
 
-      <div id="Bates" class="menu-box col-xs-2">
-        <div class="wrapper">
-          <h2>Bates</h2>
-          <h4 style="{{'color:#268727;' if bates.isOpen else 'color:#EB240E;'}}" class="open_indicator"> ({{ 'open' if bates.isOpen else 'closed' }})</h4>
-        </div>
-        <p>
-          <ul>
-          {% for item in bates.food_items %}
-            <div class="checkbox">
-              <input type="checkbox" name="{{item}}" value="1"> <li>{{item}}</li>
-            </div>
-          {% endfor %}
-          </ul>
-        </p>
-      </div>
+    <div class="row">
+      <form action="submission" id="pref_form">
+        <div id="Lulu" class="menu-box col-xs-2">
+          <div class="wrapper">
+            <h2>Lulu</h2>
+            <h4 style="{{'color:#268727;' if lulu.isOpen else 'color:#EB240E;'}}" class="open_indicator">({{ 'open' if lulu.isOpen else 'closed' }})</h4>
+          </div>
+          <p>
+            <ul>
+            {% for item in lulu.food_items %}
+              {% if "*b*" in item %}
+                </ul>
+                <b>{{item[3:]}}</b>
+                <ul>
+                {% else %}
+                  <div class='checkbox'>
+                    <input type='checkbox' name='{{item}}' value='1'> <li>{{item}}</li>
+                  </div>
+              {% endif %}
+            {% endfor %}
+            </ul>
+          </p>
 
-      <div id="Pom" class="menu-box col-xs-2">
-        <div class="wrapper">
-          <h2>Pom</h2>
-          <h4 style="{{'color:#268727;' if pom.isOpen else 'color:#EB240E;'}}" class="open_indicator">({{ 'open' if pom.isOpen else 'closed' }})</h4>
         </div>
-        <p>
-          <ul>
-          {% for item in pom.food_items %}
-            <div class="checkbox">
-              <input type="checkbox" name="{{item}}" value="1"> <li>{{item}}</li>
-            </div>
-          {% endfor %}
-          </ul>
-        </p>
-      </div>
 
-      <div id="Stone" class="menu-box col-xs-2">
-        <div class="wrapper">
-          <h2>Stone-D</h2>
-          <h4 style="{{'color:#268727;' if stone.isOpen else 'color:#EB240E;'}}" class="open_indicator">({{ 'open' if stone.isOpen else 'closed' }})</h4>
+        <div id="Bates" class="menu-box col-xs-2">
+          <div class="wrapper">
+            <h2>Bates</h2>
+            <h4 style="{{'color:#268727;' if bates.isOpen else 'color:#EB240E;'}}" class="open_indicator"> ({{ 'open' if bates.isOpen else 'closed' }})</h4>
+          </div>
+          <p>
+            <ul>
+            {% for item in bates.food_items %}
+              {% if "*b*" in item %}
+                </ul>
+                <b>{{item[3:]}}</b>
+                <ul>
+                {% else %}
+                  <div class='checkbox'>
+                    <input type='checkbox' name='{{item}}' value='1'> <li>{{item}}</li>
+                  </div>
+              {% endif %}
+            {% endfor %}
+            </ul>
+          </p>
         </div>
-        <p>
-          <ul>
-          {% for item in stone.food_items %}
-            <div class="checkbox">
-              <input type="checkbox" name="{{item}}" value="1"> <li>{{item}}</li>
-            </div>
-          {% endfor %}
-          </ul>
-        </p>
-      </div>
 
-      <div id="Tower" class="menu-box col-xs-2">
-        <div class="wrapper">
-          <h2>Tower</h2>
-          <h4 style="{{'color:#268727;' if tower.isOpen else 'color:#EB240E;'}}" class="open_indicator">({{ 'open' if tower.isOpen else 'closed' }})</h4>
+        <div id="Pom" class="menu-box col-xs-2">
+          <div class="wrapper">
+            <h2>Pom</h2>
+            <h4 style="{{'color:#268727;' if pom.isOpen else 'color:#EB240E;'}}" class="open_indicator">({{ 'open' if pom.isOpen else 'closed' }})</h4>
+          </div>
+          <p>
+            <ul>
+            {% for item in pom.food_items %}
+              {% if "*b*" in item %}
+                </ul>
+                <b>{{item[3:]}}</b>
+                <ul>
+                {% else %}
+                  <div class='checkbox'>
+                    <input type='checkbox' name='{{item}}' value='1'> <li>{{item}}</li>
+                  </div>
+              {% endif %}
+            {% endfor %}
+            </ul>
+          </p>
         </div>
-        <p>
-          <ul>
-          {% for item in tower.food_items %}
-            <div class="checkbox">
-              <input type="checkbox" name="{{item}}" value="1"> <li>{{item}}</li>
-            </div>
-          {% endfor %}
-          </ul>
-        </p> 
-      </div>
-    
+
+        <div id="Stone" class="menu-box col-xs-2">
+          <div class="wrapper">
+            <h2>Stone-D</h2>
+            <h4 style="{{'color:#268727;' if stone.isOpen else 'color:#EB240E;'}}" class="open_indicator">({{ 'open' if stone.isOpen else 'closed' }})</h4>
+          </div>
+          <p>
+            <ul>
+            {% for item in stone.food_items %}
+              {% if "*b*" in item %}
+                </ul>
+                <b>{{item[3:]}}</b>
+                <ul>
+                {% else %}
+                  <div class='checkbox'>
+                    <input type='checkbox' name='{{item}}' value='1'> <li>{{item}}</li>
+                  </div>
+              {% endif %}
+            {% endfor %}
+            </ul>
+          </p>
+        </div>
+
+        <div id="Tower" class="menu-box col-xs-2">
+          <div class="wrapper">
+            <h2>Tower</h2>
+            <h4 style="{{'color:#268727;' if tower.isOpen else 'color:#EB240E;'}}" class="open_indicator">({{ 'open' if tower.isOpen else 'closed' }})</h4>
+          </div>
+          <p>
+            <ul>
+            {% for item in tower.food_items %}
+              {% if "*b*" in item %}
+                </ul>
+                <b>{{item[3:]}}</b>
+                <ul>
+                {% else %}
+                  <div class='checkbox'>
+                    <input type='checkbox' name='{{item}}' value='1'> <li>{{item}}</li>
+                  </div>
+              {% endif %}
+            {% endfor %}
+            </ul>
+          </p> 
+        </div>
+      </form>
+       
+    </div>
   </body>
 </html>
 {% endautoescape %}

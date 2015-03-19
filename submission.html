@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <head>
+    <title>WDining V2</title> 
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--<meta name="keywords" content="wellesley college, wellesley fresh, dining" /> -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.2/js/bootstrap.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="stylesheets/main.css" />
+    
+  </head>
+
+  <body>
+    <div class="header">
+      <a href="/"><h1>Wellesley Fresh V2.0</h1></a>
+    </div>
+
+    <div class="centered-content">
+      <p>Thanks for submitting a form. </p>
+      <p>Let's see what you submitted:</p>
+      <p>
+        <ul>
+          {% for thing in foods %}
+            <li>{{thing}}</li>
+          {% endfor %}
+        </ul>
+      </p>
+       
+    </div>
+  </body>
+</html>
+{% endautoescape %}
