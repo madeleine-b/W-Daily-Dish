@@ -190,7 +190,8 @@ class MainPage(webapp2.RequestHandler):
         self.response.write(template.render(template_values))
 
     def menuUrls(self, real_localtz):
-        dd = "%d" % (real_localtz.day+1)
+        #dd = "%d" % (real_localtz.day) #for after spring break
+        dd = "18"
         mm = "%d" % (real_localtz.month)
 
         if len(dd) < 2:
@@ -206,7 +207,7 @@ class MainPage(webapp2.RequestHandler):
             menus[i] = "http://www.wellesleyfresh.com/"+menus[i]
 
         return menus
-
+ 
 
 class Favorite(webapp2.RequestHandler):
     def get(self): #get or post??? these are the questions

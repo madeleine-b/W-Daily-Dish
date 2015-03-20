@@ -10,13 +10,16 @@ a, a:hover, a:target, a:focus {
 	color: black;
 }
 
-/*span#meal_title {
-	position: relative;
-	left: -10px;
-}*/
-
 .button-box {
+	width: 17.7%;
+}
+
+#modal_open_button_box {
 	float: right;
+}
+
+.email-box {
+	width: 40%;
 }
 
 .header {

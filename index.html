@@ -4,24 +4,67 @@
   <head>
     <title>WDining V2</title> 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <!--<meta name="keywords" content="wellesley college, wellesley fresh, dining" /> -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.2/js/bootstrap.min.js"></script>
+    <script type='text/javascript' src='http://code.jquery.com/jquery-1.8.3.js'></script>
+    <script type='text/javascript' src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
     <link type="text/css" rel="stylesheet" href="stylesheets/main.css" />
-    
   </head>
 
   <body>
+
     <div class="header">
       <a href="/"><h1>Wellesley Fresh V2.0</h1></a>
       <h3>{{ date_string }}</h3>
     </div>
 
+    <!--
+
     <div class="row">
       <div class="button-box col-xs-2">
         <button id="submit_prefs_button" class="btn btn-primary" form="pref_form" type="submit">Submit Favorite Foods</button>
       </div>
+    </div>
+
+  -->
+    <div class="row">
+        <div class="button-box col-xs-2"></div>
+        <div class="button-box col-xs-2"></div>
+        <div class="button-box col-xs-2"></div>
+        <div class="button-box col-xs-2"></div>
+        <div class="button-box col-xs-2" id="modal_open_button_box">
+          <button type="submit" form="items_to_modal" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+              Set Up Email Alerts
+          </button>
+
+          <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                  <h4 class="modal-title" id="myModalLabel">Set Up Email Alerts</h4>
+                </div>
+                <div class="modal-body">
+                  <p>Enter your email to be notified the day before any of the selected foods appear in one of the dining halls!</p>
+                  
+                  <form class="form-inline">
+                    <p>
+                      <input placeholder="domain username" class="form-control email-box" type='text' name='emailaddress' form='pref_form'>
+                        &nbsp;@wellesley.edu
+                    </p>
+                  </form>
+
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button id="submit_prefs_button" form="pref_form" type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
     </div>
 
     <div class="row">
@@ -46,7 +89,6 @@
             {% endfor %}
             </ul>
           </p>
-
         </div>
 
         <div id="Bates" class="menu-box col-xs-2">
