@@ -7,6 +7,7 @@ import webapp2
 from datetime import datetime
 from pytz.gae import pytz
 from pytz import timezone
+import urllib
 
 from google.appengine.ext import ndb
 
@@ -16,6 +17,24 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
+
+'''DEFAULT_DISH_NAME = 'default_dish'
+
+def dish_key(dish_name=DEFAULT_DISH_NAME):
+    """Constructs a Datastore key for a Dish entity."""
+
+    return ndb.Key('Dish', dish_name) #??? '''
+
+class Author(ndb.Model):
+    """A model for representing the person whose email is stored in a Dish"""
+    email = ndb.StringProperty(indexed=True, required=True)
+    date = ndb.DateTimeProperty(auto_now_add=True) #so can autoremove subscriptions over 4 years old (because graduation)
+
+class Dish(ndb.Model):
+    """A main model for representing an individual food item"""
+    #author = ndb.StructuredProperty(Author) #because should be ultiple authors
+    dish_name = ndb.StringProperty(required=True)
+    authors = ndb.StructuredProperty(Author, repeated=True)
 
 class DiningHall:
 
@@ -187,6 +206,14 @@ class MainPage(webapp2.RequestHandler):
             "tower" : tower,
         }
 
+        '''tester = Author(email="funemail")
+        logging.info(tester.__dict__)
+
+        testDish = Dish(dish_name="DISHY", authors=[])
+        testDish.authors.append(tester)
+
+        logging.info(testDish.__dict__)'''
+
         self.response.write(template.render(template_values))
 
     def menuUrls(self, real_localtz):
@@ -208,10 +235,76 @@ class MainPage(webapp2.RequestHandler):
 
         return menus
  
+class DishHandler(webapp2.RequestHandler):
+    '''def get(self): 
+        submit_template = JINJA_ENVIRONMENT.get_template('submission.html')
+
+        template_values = {}
+        template_values["foods"] = []
+        for item in self.request.arguments():
+            if item!="emailaddress":
+                template_values["foods"].append(item)
+            else:
+                template_values["emailaddress"] = self.request.get("emailaddress")
+
+        self.response.out.write(submit_template.render(template_values))'''
+
+    def get(self):
+        currentEmail = self.request.get("emailaddress")
+        user = Author(email=currentEmail, date=None)
+        #query_params = {}
+        for item in self.request.arguments():
+            if item!="emailaddress":
+                #dish_name_query = Dish.query(ancestor=dish_key(item))
+                dish_name_query = Dish.get_by_id(item) #should only be one Dish entry with "item" name
+
+                if not dish_name_query: #so Dish hasn't had an alert set up for it yet
+                    dish = Dish(dish_name=item, authors=[])
+                    dish.authors.append(user)
+                    dish_name_query = dish
+                else:
+                    old_authors = dish_name_query.authors
+                    logging.info("authors=")
+                    logging.info(old_authors)
+                    if not __author_found(user.email, old_authors):
+                        old_authors.append(user)
+                    dish_name_query.authors = old_authors
+
+                dish_name_query.put()
+                #query_params['dish_name'] = dish_name_query.dish_name
+
+        submit_template = JINJA_ENVIRONMENT.get_template('submission.html')
+
+        template_values = {}
+        '''template_values["foods"] = []
+        for item in self.request.arguments():
+            if item!="emailaddress":
+                template_values["foods"].append(item)
+            else:
+                template_values["emailaddress"] = self.request.get("emailaddress")'''
+        template_values["foods"] = []
+        foods = list(set([d.dish_name for d in Dish.query(Dish.authors.email == currentEmail).fetch()])) #(hopefully) gets dishes who have `user` as someone signed up for alerts
+        logging.info("user:")
+        logging.info(user)
+        logging.info("foods:")
+        logging.info(foods)
+        for f in foods:
+            template_values["foods"].append(f)
+        template_values["emailaddress"] = currentEmail
+
+
+        self.response.out.write(submit_template.render(template_values))
+
+        
+    def __author_found(author_email, author_list):
+        for person in author_list:
+            if person.email==author_email:
+                return True
+        return False
 
 class Favorite(webapp2.RequestHandler):
     def get(self): #get or post??? these are the questions
-        submit_template = JINJA_ENVIRONMENT.get_template('submission.html')
+        submit_template = JINJA_ENVIRONMENT.get_template('submission_get.html')
 
         template_values = {}
         template_values["foods"] = []
@@ -223,5 +316,5 @@ class Favorite(webapp2.RequestHandler):
 
 application = webapp2.WSGIApplication([
     ('/', MainPage),
-    ('/submission', Favorite)
+    ('/submission', DishHandler)
 ], debug=True)
