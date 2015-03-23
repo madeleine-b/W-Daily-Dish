@@ -12,6 +12,10 @@ handlers:
   script: main.application
   login: admin
 
+- url: /_ah/bounce
+  script: main.application
+  login: admin
+
 - url: /.*
   script: main.application
 
@@ -22,3 +26,7 @@ libraries:
 
 - name: jinja2
   version: 2.6
+
+
+inbound_services:
+- mail_bounce

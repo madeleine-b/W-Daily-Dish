@@ -4,13 +4,16 @@ import cgi
 
 import jinja2
 import webapp2
-from datetime import datetime
+from datetime import datetime, timedelta
 from pytz.gae import pytz
 from pytz import timezone
 import urllib
 
 from google.appengine.ext import ndb
 from google.appengine.api import mail
+
+from google.appengine.ext.webapp.mail_handlers import BounceNotification
+from google.appengine.ext.webapp.mail_handlers import BounceNotificationHandler
 
 from bs4 import BeautifulSoup
 
@@ -183,7 +186,7 @@ class MainPage(webapp2.RequestHandler):
         now = now.replace(tzinfo=pytz.utc)
         real_localtz = datetime.astimezone(now, pytz.timezone('America/New_York'))
 
-        menus = self.menuUrls(real_localtz)
+        menus = menuUrls(real_localtz)
 
         lulu = DiningHall("lulu", menus, real_localtz)
         bates = DiningHall("bates", menus, real_localtz)
@@ -204,24 +207,24 @@ class MainPage(webapp2.RequestHandler):
 
         self.response.write(template.render(template_values))
 
-    def menuUrls(self, real_localtz):
-        #dd = "%d" % (real_localtz.day) #for after spring break
-        dd = "18"
-        mm = "%d" % (real_localtz.month)
+def menuUrls(real_localtz):
+    #dd = "%d" % (real_localtz.day) #for after spring break
+    dd = "18"
+    mm = "%d" % (real_localtz.month)
 
-        if len(dd) < 2:
-            dd = "0"+dd
-        if len(mm) < 2:
-            mm = "0"+mm
+    if len(dd) < 2:
+        dd = "0"+dd
+    if len(mm) < 2:
+        mm = "0"+mm
 
-        menus = ['menus/bplc/menu_'+mm+dd+'.htm','menus/bates/menu_'+mm+dd+'.htm','menus/pomeroy/menu_'+mm+dd+'.htm']
-        menus.append('menus/stonedavis/menu_'+mm+dd+'.htm')
-        menus.append('menus/tower/menu_'+mm+dd+'.htm')
+    menus = ['menus/bplc/menu_'+mm+dd+'.htm','menus/bates/menu_'+mm+dd+'.htm','menus/pomeroy/menu_'+mm+dd+'.htm']
+    menus.append('menus/stonedavis/menu_'+mm+dd+'.htm')
+    menus.append('menus/tower/menu_'+mm+dd+'.htm')
 
-        for i in range(len(menus)):
-            menus[i] = "http://www.wellesleyfresh.com/"+menus[i]
+    for i in range(len(menus)):
+        menus[i] = "http://www.wellesleyfresh.com/"+menus[i]
 
-        return menus
+    return menus
  
 class DishHandler(webapp2.RequestHandler):
     def get(self):
@@ -231,8 +234,7 @@ class DishHandler(webapp2.RequestHandler):
         template_values = {}
         template_values["foods"] = []
         foods = [d.dish_name for d in Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.authors.email == currentEmail).fetch()] #gets dishes who have `user` as someone signed up for alerts
-        logging.info("foods:")
-        logging.info(foods)
+        
         for f in foods:
             template_values["foods"].append(f)
         template_values["emailaddress"] = currentEmail
@@ -276,34 +278,45 @@ class EmailAlertHandler(webapp2.RequestHandler):
 
         now = datetime.utcnow()
         now = now.replace(tzinfo=pytz.utc)
-        tomorrow_localtz = datetime.astimezone(now, pytz.timezone('America/New_York')) + timedelta(days=1)
+        tomorrow_localtz = datetime.astimezone(now, pytz.timezone('America/New_York')) - timedelta(days=5) #change after spring break; pretending the 18th is tomorrow
 
-        tomorrowMenuURLS = MainPage.menuUrls(tomorrow_localtz)
+        tomorrowMenuURLS = menuUrls(tomorrow_localtz)
 
-        luluTmrw = DiningHall("lulu", menus, real_localtz)
-        batesTmrw = DiningHall("bates", menus, real_localtz)
-        pomTmrw = DiningHall("pom", menus, real_localtz)
-        stoneTmrw = DiningHall("stone", menus, real_localtz)
-        towerTmrw = DiningHall("tower", menus, real_localtz)
+        luluTmrw = DiningHall("lulu", tomorrowMenuURLS, tomorrow_localtz)
+        batesTmrw = DiningHall("bates", tomorrowMenuURLS, tomorrow_localtz)
+        pomTmrw = DiningHall("pom", tomorrowMenuURLS, tomorrow_localtz)
+        stoneTmrw = DiningHall("stone", tomorrowMenuURLS, tomorrow_localtz)
+        towerTmrw = DiningHall("tower", tomorrowMenuURLS, tomorrow_localtz)
 
         allHallTmrw = [luluTmrw, batesTmrw, pomTmrw, stoneTmrw, towerTmrw]
 
         for dHall in allHallTmrw:
+            #logging.info("going through items at "+dHall.name)
             for fI in dHall.food_items:
                 fI_query = Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.dish_name == fI).get()
                 
                 if fI_query:
+                    #logging.info(fI_query.dish_name+" has an alert set up for it by ")
                     pplToAlert = [a.email for a in fI_query.authors]
+                    #logging.info(pplToAlert)
                     for personEmail in pplToAlert:
                         if emailsToSend.has_key(personEmail):
                             oldEmailBody = emailsToSend[personEmail]
                             oldEmailBody += "\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow"
+                            emailsToSend[personEmail] = oldEmailBody
                         else:
-                            emailsToSend[personEmail] = fI+" will be at "+self.neaten(dHall.name)+" tomorrow"
-        logging.info("emailToSend >>")
-        logging.info(emailsToSend)
+                            emailBody = "Hi, "+personEmail+"!\n\nGood news.\n\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow"
+                            emailsToSend[personEmail] = emailBody
 
-        #mail.send_mail(sender_address, "user_address", subject, body)
+        for email in emailsToSend:
+            user_ubsub_link = "/?emailaddress="+email
+            mail.send_mail("Wellesley Fresher App <daily-dish@wellesley-fresher.appspotmail.com>",
+                email+"@wellesley.edu",
+                "Dining Hall Favs Tomorrow!",
+                emailsToSend[email],
+                headers = {"List-Unsubscribe": user_ubsub_link}
+                )
+
 
     def neaten(self, dHallName):
         dHallName = dHallName.title()
@@ -313,9 +326,31 @@ class EmailAlertHandler(webapp2.RequestHandler):
             return "Stone-Davis"
         return dHallName
 
+class LogBounceHandler(webapp2.RequestHandler):
+  def post(self):
+    post_vars = self.request.POST
+    #bounce = BounceNotification(post_vars)
+    #logging.info('Bounce notification: %s' + str(bounce.notification))
+    username = post_vars["original-to"]
+    logging.info("So "+username+" is an invalid email and we should remove all entries for it")
+    username = username.split("@wellesley.edu")[0] #domain username
+
+    dishes = [d for d in Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.authors.email == username).fetch()] #gets Dishes who have `username` as someone signed up for alerts
+
+    for dish in dishes:
+        authorList = dish.authors
+        logging.info(dish.dish_name+" has the invalid prsn")
+        for i in range(len(authorList)):
+            if authorList[i].email == username:
+                authorList.pop(i) #remove Author with invalid email of username@wellesley.edu from Authors signed up for `dish` alerts
+                break
+        dish.authors = authorList
+        logging.info(', '.join([a.email for a in dish.authors]))
+        dish.put()
 
 application = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/submission/', DishHandler),
-    ('/tasks/send_alerts', EmailAlertHandler)
+    ('/tasks/send_alerts', EmailAlertHandler),
+    ('/_ah/bounce', LogBounceHandler)
 ], debug=True)
