@@ -1,0 +1,5 @@
+cron:
+- description: daily email alerts
+  url: /tasks/send_alerts
+  schedule: every 1 minutes
+  timezone: America/New_York

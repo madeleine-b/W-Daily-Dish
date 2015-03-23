@@ -10,6 +10,7 @@ from pytz import timezone
 import urllib
 
 from google.appengine.ext import ndb
+from google.appengine.api import mail
 
 from bs4 import BeautifulSoup
 
@@ -281,7 +282,13 @@ class Favorite(webapp2.RequestHandler):
 
         self.response.out.write(submit_template.render(template_values))
 
+class EmailAlertHandler(webapp2.RequestHandler):
+    def get(self):
+        logging.info("testing cron!")
+
+
 application = webapp2.WSGIApplication([
     ('/', MainPage),
-    ('/submission/', DishHandler)
+    ('/submission/', DishHandler),
+    ('/tasks/send_alerts', EmailAlertHandler)
 ], debug=True)

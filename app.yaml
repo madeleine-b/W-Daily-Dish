@@ -8,6 +8,10 @@ handlers:
 - url: /stylesheets
   static_dir: stylesheets
 
+- url: /tasks/send_alerts
+  script: main.application
+  login: admin
+
 - url: /.*
   script: main.application
 
