@@ -228,12 +228,6 @@ class DishHandler(webapp2.RequestHandler):
         submit_template = JINJA_ENVIRONMENT.get_template('submission.html')
 
         template_values = {}
-        '''template_values["foods"] = []
-        for item in self.request.arguments():
-            if item!="emailaddress":
-                template_values["foods"].append(item)
-            else:
-                template_values["emailaddress"] = self.request.get("emailaddress")'''
         template_values["foods"] = []
         foods = [d.dish_name for d in Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.authors.email == currentEmail).fetch()] #gets dishes who have `user` as someone signed up for alerts
         logging.info("foods:")
@@ -267,7 +261,7 @@ class DishHandler(webapp2.RequestHandler):
                     dish_name_query.authors = old_authors
 
                 dish_name_query.put()
-        self.redirect('/submission/')
+        self.redirect('/submission/?emailaddress='+currentEmail)
 
     def __author_found(self, author_email, author_list):
         for person in author_list:
