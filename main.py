@@ -30,7 +30,7 @@ class Dish(ndb.Model):
     authors = ndb.StructuredProperty(Author, repeated=True)
 
 DEFAULT_DISH_NAME = 'default_dish'
-DEFAULT_DISH = Dish(dish_name=DEFAULT_DISH_NAME, authors=[]) #can be parent of all dishes so we can have strongly-consistent results. not there yet idk why
+DEFAULT_DISH = Dish(dish_name=DEFAULT_DISH_NAME, authors=[]) #can be parent of all dishes so we can have strongly-consistent results
 
 class DiningHall:
 
@@ -270,21 +270,48 @@ class DishHandler(webapp2.RequestHandler):
                 return True
         return False
 
-class Favorite(webapp2.RequestHandler):
-    def get(self): #get or post??? these are the questions
-        submit_template = JINJA_ENVIRONMENT.get_template('submission_get.html')
-
-        template_values = {}
-        template_values["foods"] = []
-        for item in self.request.arguments():
-            template_values["foods"].append(item)
-        #logging.info(self.request.arguments())
-
-        self.response.out.write(submit_template.render(template_values))
-
 class EmailAlertHandler(webapp2.RequestHandler):
     def get(self):
-        logging.info("testing cron!")
+        emailsToSend = {}
+
+        now = datetime.utcnow()
+        now = now.replace(tzinfo=pytz.utc)
+        tomorrow_localtz = datetime.astimezone(now, pytz.timezone('America/New_York')) + timedelta(days=1)
+
+        tomorrowMenuURLS = MainPage.menuUrls(tomorrow_localtz)
+
+        luluTmrw = DiningHall("lulu", menus, real_localtz)
+        batesTmrw = DiningHall("bates", menus, real_localtz)
+        pomTmrw = DiningHall("pom", menus, real_localtz)
+        stoneTmrw = DiningHall("stone", menus, real_localtz)
+        towerTmrw = DiningHall("tower", menus, real_localtz)
+
+        allHallTmrw = [luluTmrw, batesTmrw, pomTmrw, stoneTmrw, towerTmrw]
+
+        for dHall in allHallTmrw:
+            for fI in dHall.food_items:
+                fI_query = Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.dish_name == fI).get()
+                
+                if fI_query:
+                    pplToAlert = [a.email for a in fI_query.authors]
+                    for personEmail in pplToAlert:
+                        if emailsToSend.has_key(personEmail):
+                            oldEmailBody = emailsToSend[personEmail]
+                            oldEmailBody += "\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow"
+                        else:
+                            emailsToSend[personEmail] = fI+" will be at "+self.neaten(dHall.name)+" tomorrow"
+        logging.info("emailToSend >>")
+        logging.info(emailsToSend)
+
+        #mail.send_mail(sender_address, "user_address", subject, body)
+
+    def neaten(self, dHallName):
+        dHallName = dHallName.title()
+        if dHallName == "Pom":
+            return "Pomeroy"
+        if dHallName == "Stone":
+            return "Stone-Davis"
+        return dHallName
 
 
 application = webapp2.WSGIApplication([
