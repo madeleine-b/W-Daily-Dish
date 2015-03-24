@@ -305,11 +305,15 @@ class EmailAlertHandler(webapp2.RequestHandler):
                             oldEmailBody += "\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow"
                             emailsToSend[personEmail] = oldEmailBody
                         else:
-                            emailBody = "Hi, "+personEmail+"!\n\nGood news.\n\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow"
+                            emailBody = "Hi, "+personEmail+"!\nGood news.\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow"
                             emailsToSend[personEmail] = emailBody
 
         for email in emailsToSend:
-            user_ubsub_link = "/?emailaddress="+email
+            user_ubsub_link = "//wellesley-fresher.appspot.com/unsubscribe/?emailaddress="+email
+
+            emailBody = emailsToSend[email] + "\nUnsubscribe using this link: "+user_ubsub_link[2:]
+            emailsToSend[email] = emailBody
+
             mail.send_mail("Wellesley Fresher App <daily-dish@wellesley-fresher.appspotmail.com>",
                 email+"@wellesley.edu",
                 "Dining Hall Favs Tomorrow!",
@@ -338,19 +342,54 @@ class LogBounceHandler(webapp2.RequestHandler):
     dishes = [d for d in Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.authors.email == username).fetch()] #gets Dishes who have `username` as someone signed up for alerts
 
     for dish in dishes:
-        authorList = dish.authors
-        logging.info(dish.dish_name+" has the invalid prsn")
-        for i in range(len(authorList)):
-            if authorList[i].email == username:
-                authorList.pop(i) #remove Author with invalid email of username@wellesley.edu from Authors signed up for `dish` alerts
-                break
-        dish.authors = authorList
-        logging.info(', '.join([a.email for a in dish.authors]))
-        dish.put()
+        removeAuthorFrmDish(dish, username)
+
+def removeAuthorFrmDish(dish, username):
+    authorList = dish.authors
+    #logging.info(dish.dish_name+" has the invalid prsn")
+    for i in range(len(authorList)):
+        if authorList[i].email == username:
+            authorList.pop(i) #remove Author with invalid email of username@wellesley.edu from Authors signed up for `dish` alerts
+            break
+    dish.authors = authorList
+    #logging.info(', '.join([a.email for a in dish.authors]))
+    dish.put()
+
+class UnsubscribeHandler(webapp2.RequestHandler):
+    def get(self):
+        currentEmail = self.request.get("emailaddress")
+        submit_template = JINJA_ENVIRONMENT.get_template('unsubscribe_page.html')
+
+        template_values = {}
+        template_values["foods"] = []
+        foods = [d.dish_name for d in Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.authors.email == currentEmail).fetch()] #gets dishes who have `user` as someone signed up for alerts
+        
+        for f in foods:
+            template_values["foods"].append(f)
+        template_values["email"] = currentEmail
+
+        self.response.out.write(submit_template.render(template_values))
+
+    def post(self):
+        submit_template = JINJA_ENVIRONMENT.get_template('unsubscribe_success.html')
+        template_values = {}
+
+        currentEmail = self.request.get("emailaddress")
+
+        allSubbedItems = [d.dish_name for d in Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.authors.email == currentEmail).fetch()]
+        checkedItems = [chItem for chItem in self.request.arguments() if chItem!="emailaddress"]
+        itemsToUnsub = [un for un in allSubbedItems if un not in checkedItems] #inefficient... there are apparently some clever JS tricks
+
+        for item in itemsToUnsub:
+            dish = Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.dish_name == item).get()
+            removeAuthorFrmDish(dish, currentEmail)
+
+        self.response.out.write(submit_template.render(template_values))
 
 application = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/submission/', DishHandler),
     ('/tasks/send_alerts', EmailAlertHandler),
-    ('/_ah/bounce', LogBounceHandler)
+    ('/_ah/bounce', LogBounceHandler),
+    ('/unsubscribe/', UnsubscribeHandler)
 ], debug=True)
