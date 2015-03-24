@@ -18,7 +18,6 @@ handlers:
 
 - url: /unsubscribe/.*
   script: main.application
-  login: admin
 
 - url: /.*
   script: main.application

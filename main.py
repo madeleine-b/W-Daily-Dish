@@ -311,7 +311,7 @@ class EmailAlertHandler(webapp2.RequestHandler):
         for email in emailsToSend:
             user_ubsub_link = "//wellesley-fresher.appspot.com/unsubscribe/?emailaddress="+email
 
-            emailBody = emailsToSend[email] + "\nUnsubscribe using this link: "+user_ubsub_link[2:]
+            emailBody = emailsToSend[email] + "\nUpdate your subscription preferences using this link: "+user_ubsub_link[2:]
             emailsToSend[email] = emailBody
 
             mail.send_mail("Wellesley Fresher App <daily-dish@wellesley-fresher.appspotmail.com>",
