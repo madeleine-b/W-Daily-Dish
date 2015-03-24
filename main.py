@@ -244,7 +244,7 @@ class DishHandler(webapp2.RequestHandler):
     def post(self):
         currentEmail = self.request.get("emailaddress")
         user = Author(email=currentEmail)
-        logging.info("***------BEGINNING NEW DB ACCESS------***")
+        #logging.info("***------BEGINNING NEW DB ACCESS------***")
         for item in self.request.arguments():
             if item!="emailaddress":
                 dish_name_query = Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.dish_name == item).get() #should only be one Dish entry with "item" name
@@ -252,12 +252,12 @@ class DishHandler(webapp2.RequestHandler):
                 #logging.info(dish_name_query)
 
                 if not dish_name_query: #so dish_name_query hasn't had an alert set up for it yet
-                    logging.info("NEW DISH ALERT: "+item)
+                    #logging.info("NEW DISH ALERT: "+item)
                     new_dish = Dish(parent=DEFAULT_DISH.key, dish_name=item, authors=[])
                     new_dish.authors.append(user)
                     dish_name_query = new_dish
                 else:
-                    logging.info("EXISTING DISH ALERT: "+item)
+                    #logging.info("EXISTING DISH ALERT: "+item)
                     old_authors = dish_name_query.authors
                     if not self.__author_found(user.email, old_authors): #to avoid duplicates on the list and thus avoid duplicate email alerts
                         old_authors.append(user)
@@ -305,7 +305,7 @@ class EmailAlertHandler(webapp2.RequestHandler):
                             oldEmailBody += "\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow"
                             emailsToSend[personEmail] = oldEmailBody
                         else:
-                            emailBody = "Hi, "+personEmail+"!\nGood news.\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow"
+                            emailBody = "Hi, "+personEmail+"!\n\nGood news.\n\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow"
                             emailsToSend[personEmail] = emailBody
 
         for email in emailsToSend:
