@@ -14,12 +14,22 @@
 
   <body>
 
+    <div id="links_box" class="row">
+        <p>
+          <h4>
+            <a href="about.html">About</a> • <a href="contact.html">Contact</a>
+          </h4>
+        </p>
+    </div>
+
+    </div>
+
     <div class="header">
       <a href="/"><h1>Wellesley Fresh V2.0</h1></a>
       <h3>{{ date_string }}</h3>
     </div>
 
-    <div class="row">
+    <div id="button_row" class="row">
         <div class="button-box col-xs-2"></div>
         <div class="button-box col-xs-2"></div>
         <div class="button-box col-xs-2"></div>
@@ -41,7 +51,7 @@
                   
                   <form class="form-inline">
                     <p>
-                      <input placeholder="domain username" class="form-control email-box" type='text' name="emailaddress" form='pref_form'>
+                      <input placeholder="domain username" class="form-control email-box" type='text' name="emailaddress" form='pref_form' required>
                         &nbsp;@wellesley.edu
                     </p>
                   </form>
@@ -58,7 +68,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div id="hall_row" class="row">
       <form action="/submission/" id="pref_form" method="post">
         <div id="Lulu" class="menu-box col-xs-2">
           <div class="wrapper">

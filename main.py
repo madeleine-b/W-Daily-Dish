@@ -326,7 +326,7 @@ class DishHandler(webapp2.RequestHandler):
 
         Shows all dishes the user with currentEmail is set up to receive alerts about.
         """
-        currentEmail = self.request.get("emailaddress")
+        currentEmail = cgi.escape(self.request.get("emailaddress"))
         submit_template = JINJA_ENVIRONMENT.get_template('submission.html')
 
         template_values = {}
@@ -341,10 +341,11 @@ class DishHandler(webapp2.RequestHandler):
 
     def post(self):
         """Adds to the database an Author with currentEmail to each checked Dish's list of authors."""
-        currentEmail = self.request.get("emailaddress")
+        currentEmail = cgi.escape(self.request.get("emailaddress"))
         user = Author(email=currentEmail)
 
         for item in self.request.arguments():
+            item = cgi.escape(item)
             if item!="emailaddress":
                 dish_name_query = Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.dish_name == item).get() #should only be one Dish entry with "item" name
 
@@ -467,7 +468,7 @@ class UnsubscribeHandler(webapp2.RequestHandler):
 
     def get(self):
         """Displays an unsubscribe page with checked checkboxes for each item the user with currentEmail is subscribed to."""
-        currentEmail = self.request.get("emailaddress")
+        currentEmail = cgi.escape(self.request.get("emailaddress"))
         submit_template = JINJA_ENVIRONMENT.get_template('unsubscribe_page.html')
 
         template_values = {}
@@ -487,10 +488,10 @@ class UnsubscribeHandler(webapp2.RequestHandler):
         submit_template = JINJA_ENVIRONMENT.get_template('unsubscribe_success.html')
         template_values = {}
 
-        currentEmail = self.request.get("emailaddress")
+        currentEmail = cgi.escape(self.request.get("emailaddress"))
 
         allSubbedItems = [d.dish_name for d in Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.authors.email == currentEmail).fetch()]
-        checkedItems = [chItem for chItem in self.request.arguments() if chItem!="emailaddress"]
+        checkedItems = [cgi.escape(chItem) for chItem in self.request.arguments() if chItem!="emailaddress"]
         itemsToUnsub = [un for un in allSubbedItems if un not in checkedItems] #inefficient... there are apparently some clever JS tricks
 
         for item in itemsToUnsub:
