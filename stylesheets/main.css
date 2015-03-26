@@ -36,10 +36,6 @@ div#links_box h4 {
 	margin-top: 25px;
 }
 
-.button-box {
-	width: 17.7%;
-}
-
 #modal_open_button_box {
 	float: right;
 }
@@ -70,20 +66,37 @@ div#links_box h4 {
 	padding-top: 20px;
 }
 
-.wrapper h2 {
-	line-height: 50px;
+div#hall_row .wrapper h2,
+div#button_row .wrapper h4 {
 	margin-top: 0;
 	overflow: hidden;
 	float: left;
-	margin-right: 20px;
 }
 
-.wrapper h4 {
-	line-height: 50px;
+div#hall_row .wrapper h4,
+div#button_row .wrapper h6 {
 	display: block;
 	margin-top: 0;
 	margin-right: 10px;
 	overflow: hidden;
+}
+
+div#hall_row .wrapper h2,
+div#hall_row .wrapper h4 {
+	line-height: 50px;
+}
+
+div#button_row .wrapper h4,
+div#button_row .wrapper h6 {
+	line-height: 25px;
+}
+
+div#hall_row .wrapper h2 {
+	margin-right: 20px;
+}
+
+div#button_row .wrapper h4 {
+	margin-right: 13px;
 }
 
 .btn-primary {
@@ -105,14 +118,21 @@ div#links_box h4 {
 	display: block;
 }
 
-.menu-box {
-	background-color: white;
-	border-style: solid;
-	border-width: 1px;
+.menu-box, .button-box {
 	margin-left: 25px;
 	padding-left: 20px;
 	padding-bottom: 10px;
 	width: 17.7%;
+}
+
+.menu-box {
+	background-color: white;
+	border-style: solid;
+	border-width: 1px;
+}
+
+#button_row {
+	padding-top: 25px;
 }
 
 .row#hall_row, .row#button_row {

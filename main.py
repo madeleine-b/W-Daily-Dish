@@ -286,6 +286,71 @@ def menu_urls(real_localtz):
 
     return menus
 
+def emp_is_open(real_localtz):
+    """Determines whether the Emporium is currently open.
+
+    Args:
+        real_localtz: A datetime object aware to the local timezone of America/New_York.
+
+    Returns:
+        A boolean of whether the Emporium is currently open.
+    """
+    hour = real_localtz.hour 
+    minute = real_localtz.minute
+
+    hm_sum = hour + (minute/60.0)
+
+    day_of_week = real_localtz.isoweekday() #mon = 1; sun = 7
+
+    if day_of_week==1 or day_of_week==5:
+        return hm_sum>=7 and hm_sum<=20
+    elif day_of_week==2 or day_of_week==3 or day_of_week==4:
+        return hm_sum>=7 and hm_sum<=23.9999 #midnight but...
+    else:
+        return hm_sum>=12 and hm_sum<=20
+
+def lb_is_open(real_localtz):
+    """Determines whether The Leaky Beaker is currently open.
+
+    Args:
+        real_localtz: A datetime object aware to the local timezone of America/New_York.
+
+    Returns:
+        A boolean of whether The Leaky Beaker is currently open.
+    """
+    day_of_week = real_localtz.isoweekday() #mon = 1; sun = 7
+
+    if day_of_week==6 or day_of_week==7:
+        return False
+
+    hour = real_localtz.hour 
+    minute = real_localtz.minute
+
+    hm_sum = hour + (minute/60.0)
+
+    return hm_sum>=8 and hm_sum<=16
+
+def collins_cafe_is_open(real_localtz):
+    """Determines whether Collins Cafe is currently open.
+
+    Args:
+        real_localtz: A datetime object aware to the local timezone of America/New_York.
+
+    Returns:
+        A boolean of whether Collins Cafe is currently open.
+    """
+    day_of_week = real_localtz.isoweekday() #mon = 1; sun = 7
+
+    if day_of_week==6 or day_of_week==7:
+        return False
+
+    hour = real_localtz.hour 
+    minute = real_localtz.minute
+
+    hm_sum = hour + (minute/60.0)
+
+    return hm_sum>=8 and hm_sum<=14
+
 class MainPage(webapp2.RequestHandler):
     """Renders the main page of the Wellesley Daily Dish application with the current menu for each dining hall displayed."""
 
@@ -306,6 +371,10 @@ class MainPage(webapp2.RequestHandler):
 
         date_string = real_localtz.strftime("%A, %B %d")
 
+        emporium_is_open = emp_is_open(real_localtz)
+        leaky_beaker_is_open = lb_is_open(real_localtz)
+        collins_is_open = collins_cafe_is_open(real_localtz)
+
         template_values = {
             "date_string" : date_string,
             "lulu" : lulu,
@@ -313,6 +382,9 @@ class MainPage(webapp2.RequestHandler):
             "pom" : pom,
             "stone" : stone,
             "tower" : tower,
+            "emporium_is_open" : emporium_is_open,
+            "leaky_beaker_is_open" : leaky_beaker_is_open,
+            "collins_is_open" : collins_is_open
         }
 
         self.response.write(template.render(template_values))
