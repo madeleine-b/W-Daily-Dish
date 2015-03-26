@@ -6,7 +6,8 @@ p {
 	margin-left: 15px;
 }
 
-a, a:hover, a:target, a:focus {
+.header a, .header a:hover, .header a:target, .header a:focus,
+div#links_box a, div#links_box a:hover, div#links_box a:target, div#links_box a:focus {
 	color: black;
 }
 
@@ -29,6 +30,20 @@ div#links_box h4 {
 
 #modal_open_button_box {
 	float: right;
+}
+
+#about_footer {
+	text-align: left;
+}
+
+.footnote {
+	color: #B3B3B3;
+	color: #969696;
+	font-size: .9em;
+}
+
+.modal-header {
+	padding-bottom: 25px;
 }
 
 .email-box {

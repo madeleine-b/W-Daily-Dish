@@ -6,10 +6,27 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <!--<meta name="keywords" content="wellesley college, wellesley fresh, dining" /> -->
-    <script type='text/javascript' src='https://code.jquery.com/jquery-1.8.3.js'></script>
-    <script type='text/javascript' src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     <link type="text/css" rel="stylesheet" href="stylesheets/main.css" />
+
+    <script type="text/javascript">
+      function mailScramble(address,suffix,ending) { 
+        var a,b,c,d,e;
+        a='<a href=\"mai';
+        b=address; 
+        c='\">'; 
+        a+='lto:'; 
+        b+='&#64;'; 
+        e='</a>';
+        b+=suffix;
+        b+='.'+ending.substring(0,1);
+        b+=ending.substring(1);
+        d=b;
+        document.write(a+b+c+d+e);
+      }
+    </script> 
   </head>
 
   <body>
@@ -17,8 +34,57 @@
     <div id="links_box" class="row">
         <p>
           <h4>
-            <a href="about.html">About</a> • <a href="contact.html">Contact</a>
+            <a href="" data-toggle="modal" data-target="#aboutModal">About</a> • <a href="" data-toggle="modal" data-target="#contactModal">Contact</a>
           </h4>
+        
+          <div class="modal fade" id="aboutModal" tabindex="-1" role="dialog" aria-labelledby="aboutModal" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                  <p>
+                    <i>Hungry for a meal? Got a favorite food you've been waiting to have again? Want to make sure you don't miss a special dining event?</i><br><br>
+                    <b>Wellesley Fresher is here to help.</b><br><br>
+                    Simply visit this site on the day a dish you really like is served and you can set up to be emailed the day before
+                    it next appears in any of the five dining halls!*
+                    You can also come here to check which food-serving establishments on campus are currently open.<br><br>
+                    For questions, comments, and complaints, <a href="" data-dismiss="modal" data-toggle="modal" data-target="#contactModal">contact me</a>.
+
+                    <div id="about_footer" class="modal-footer">
+                      <span class="footnote">
+                        *Menu info (current and future) is pulled from wellesleyfresh.com, which is not always 100% accurate.
+                        So there's a small possibility you might get an exciting email about S'mores Pizza at Tower and instead it's Cinnamon Breadsticks.
+                        Hopefully this doesn't happen often, though!
+                      </span>
+                    </div> 
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal fade" id="contactModal" tabindex="-1" role="dialog" aria-labelledby="contactModal" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                  <p>
+                    Hi! Thanks for stopping by. I'm Madeleine Barowsky ('18), the coder and designer behind Wellesley Fresher.<br><br>
+
+                    You can email me at <script type="text/javascript">mailScramble("mbarowsk","wellesley","edu");</script>
+                    and/or check out <a href="https://github.com/madeleine-b/WDining">the code</a> on GitHub. Wellesley Fresher is built on Google App Engine in Python.
+                    <br><br>
+                    If you catch any bugs or there's something wrong with the site, please let me know! :)
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </p>
     </div>
 
@@ -44,7 +110,6 @@
               <div class="modal-content">
                 <div class="modal-header">
                   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                  <h4 class="modal-title" id="myModalLabel">Set Up Email Alerts</h4>
                 </div>
                 <div class="modal-body">
                   <p>Enter your email to be notified the day before any of the selected foods appear in one of the dining halls!</p>
@@ -64,7 +129,6 @@
               </div>
             </div>
           </div>
-
         </div>
     </div>
 
@@ -179,9 +243,9 @@
             </ul>
           </p> 
         </div>
-      </form>
-       
+      </form>   
     </div>
+
   </body>
 </html>
 {% endautoescape %}
