@@ -6,9 +6,17 @@ p {
 	margin-left: 15px;
 }
 
-.header a, .header a:hover, .header a:target, .header a:focus,
-div#links_box a, div#links_box a:hover, div#links_box a:target, div#links_box a:focus {
-	color: black;
+a {
+	color: #002776;
+}
+
+a:hover, a:target, a:focus {
+	color: #00349d;
+}
+
+.header a:hover, .header a:target, .header a:focus {
+	text-decoration: none;
+    border-bottom: 2px solid #00349d; /*thinner than regular underline*/
 }
 
 div#links_box {
@@ -37,8 +45,7 @@ div#links_box h4 {
 }
 
 .footnote {
-	color: #B3B3B3;
-	color: #969696;
+	color: #969696; /*dark light gray*/
 	font-size: .9em;
 }
 
@@ -73,6 +80,21 @@ div#links_box h4 {
 	margin-top: 0;
 	margin-right: 10px;
 	overflow: hidden;
+}
+
+.btn-primary {
+	background-color: #002776;
+	border-color: #002162;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary.focus,
+.btn-primary:active,
+.btn-primary.active,
+.open > .dropdown-toggle.btn-primary {
+	background-color: #00349d;
+	border-color: #002d8a;
 }
 
 .open_indicator {
