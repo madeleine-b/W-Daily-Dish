@@ -403,7 +403,8 @@ class DishHandler(webapp2.RequestHandler):
 
         template_values = {}
         template_values["foods"] = []
-        foods = [d.dish_name for d in Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.authors.email == currentEmail).fetch()] #gets dishes who have `user` as someone signed up for alerts
+        subbedDishes = Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.authors.email == currentEmail).fetch() #gets dishes who have `user` as someone signed up for alerts
+        foods = [d.dish_name for d in subbedDishes] 
         
         for f in foods:
             template_values["foods"].append(f)
@@ -486,7 +487,7 @@ class EmailAlertHandler(webapp2.RequestHandler):
             email_body = emails_to_send[email] + "\nUpdate your subscription preferences using this link: "+user_ubsub_link[2:]
             emails_to_send[email] = email_body
 
-            mail.send_mail("Wellesley Daily Dish <daily-dish@wellesley-daily-dish.appspotmail.com>",
+            mail.send_mail("Wellesley Daily Dish <daily-dish-alerts@wellesley-daily-dish.appspotmail.com>",
                 email+"@wellesley.edu",
                 "Dining Hall Favs Tomorrow!",
                 emails_to_send[email],
@@ -544,7 +545,8 @@ class UnsubscribeHandler(webapp2.RequestHandler):
 
         template_values = {}
         template_values["foods"] = []
-        foods = [d.dish_name for d in Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.authors.email == currentEmail).fetch()] #gets dishes who have `user` as someone signed up for alerts
+        subbedDishes = Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.authors.email == currentEmail).fetch() #gets dishes who have `user` as someone signed up for alerts
+        foods = [d.dish_name for d in subbedDishes] 
         
         for f in foods:
             template_values["foods"].append(f)
@@ -561,7 +563,8 @@ class UnsubscribeHandler(webapp2.RequestHandler):
 
         currentEmail = cgi.escape(self.request.get("emailaddress"))
 
-        allSubbedItems = [d.dish_name for d in Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.authors.email == currentEmail).fetch()]
+        subbedDishes = Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.authors.email == currentEmail).fetch()
+        allSubbedItems = [d.dish_name for d in subbedDishes]
         checkedItems = [chItem for chItem in self.request.arguments() if chItem!="emailaddress"]
         itemsToUnsub = [un for un in allSubbedItems if un not in checkedItems] #inefficient... there are apparently some clever JS tricks
 
