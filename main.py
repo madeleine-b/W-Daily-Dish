@@ -287,7 +287,7 @@ def menu_urls(real_localtz):
     return menus
 
 class MainPage(webapp2.RequestHandler):
-    """Renders the main page of the Wellesley Fresher application with the current menu for each dining hall displayed."""
+    """Renders the main page of the Wellesley Daily Dish application with the current menu for each dining hall displayed."""
 
     def get(self):
         template = JINJA_ENVIRONMENT.get_template('index.html')
@@ -415,7 +415,7 @@ class EmailAlertHandler(webapp2.RequestHandler):
             email_body = emails_to_send[email] + "\nUpdate your subscription preferences using this link: "+user_ubsub_link[2:]
             emails_to_send[email] = email_body
 
-            mail.send_mail("Wellesley Fresher App <daily-dish@wellesley-fresher.appspotmail.com>",
+            mail.send_mail("Wellesley Daily Dish App <daily-dish@wellesley-fresher.appspotmail.com>",
                 email+"@wellesley.edu",
                 "Dining Hall Favs Tomorrow!",
                 emails_to_send[email],
