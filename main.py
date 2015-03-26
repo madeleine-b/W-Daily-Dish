@@ -162,13 +162,24 @@ class DiningHall:
             i = re.sub("[\(\[].*?[\)\]]", "", i) #removes stuff between parentheses and brackets
             i = ' '.join(i.split()) #removes more than one space between words
             i = i.replace(" and", ',').replace(b'\x2D', '-').replace("or ", ',').replace('<', '').replace('>', '') #sometimes the and-replacement is tricky
+            i = i.replace('- ','')
 
             for k in keywords:
                 i = i.replace(k, '')
 
             for b in bold_items: #solving issue with Tower having bolded menu categories in same paragraph as foods 
                 if len(b)>1:
-                    i = i.replace(b, b+',')
+                    if b.lower()=="grill": #grumble grumble
+                        try:
+                            b_index = i.index(b)+len(b)
+                            two_char_after = i[b_index:b_index+2]
+                            logging.info(two_char_after)
+                            if two_char_after!="ed":
+                                i = i.replace(b, b+',')
+                        except ValueError:
+                            pass
+                    else:
+                        i = i.replace(b, b+',')
             
             i = "".join([x if ord(x) < 128 else '' for x in i]) #removes non-ASCII characters
 
@@ -482,16 +493,16 @@ class EmailAlertHandler(webapp2.RequestHandler):
                             emails_to_send[person_email] = email_body
 
         for email in emails_to_send:
-            user_ubsub_link = "//wellesley-daily-dish.appspot.com/unsubscribe/?emailaddress="+email
+            user_ubsub_link = "wellesley-daily-dish.appspot.com/unsubscribe/?emailaddress="+email
 
-            email_body = emails_to_send[email] + "\nUpdate your subscription preferences using this link: "+user_ubsub_link[2:]
+            email_body = emails_to_send[email] + "\nUpdate your subscription preferences using this link: "+user_ubsub_link
             emails_to_send[email] = email_body
 
             mail.send_mail("Wellesley Daily Dish <daily-dish-alerts@wellesley-daily-dish.appspotmail.com>",
                 email+"@wellesley.edu",
                 "Dining Hall Favs Tomorrow!",
                 emails_to_send[email],
-                headers = {"List-Unsubscribe": user_ubsub_link}
+                headers = {"List-Unsubscribe": "https://"+user_ubsub_link}
                 )
 
     def neaten(self, dHallName):
