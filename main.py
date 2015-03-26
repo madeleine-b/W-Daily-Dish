@@ -161,7 +161,7 @@ class DiningHall:
             i = i.replace(b'\r\n', ' ').replace(b'\xc2\xa0', ' ').replace(b'\xe2\x80\x99', '\'').replace(b'\xc2\x92', '\'').replace(b'\x26', '&')
             i = re.sub("[\(\[].*?[\)\]]", "", i) #removes stuff between parentheses and brackets
             i = ' '.join(i.split()) #removes more than one space between words
-            i = i.replace(" and", ',').replace(b'\x2D', '-').replace("or ", ',') #sometimes the and-replacement is tricky
+            i = i.replace(" and", ',').replace(b'\x2D', '-').replace("or ", ',').replace('<', '').replace('>', '') #sometimes the and-replacement is tricky
 
             for k in keywords:
                 i = i.replace(k, '')
