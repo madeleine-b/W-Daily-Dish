@@ -410,12 +410,12 @@ class EmailAlertHandler(webapp2.RequestHandler):
                             emails_to_send[person_email] = email_body
 
         for email in emails_to_send:
-            user_ubsub_link = "//wellesley-fresher.appspot.com/unsubscribe/?emailaddress="+email
+            user_ubsub_link = "//wellesley-daily-dish.appspot.com/unsubscribe/?emailaddress="+email
 
             email_body = emails_to_send[email] + "\nUpdate your subscription preferences using this link: "+user_ubsub_link[2:]
             emails_to_send[email] = email_body
 
-            mail.send_mail("Wellesley Daily Dish App <daily-dish@wellesley-fresher.appspotmail.com>",
+            mail.send_mail("Wellesley Daily Dish <daily-dish@wellesley-daily-dish.appspotmail.com>",
                 email+"@wellesley.edu",
                 "Dining Hall Favs Tomorrow!",
                 emails_to_send[email],
