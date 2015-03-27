@@ -300,6 +300,9 @@ def menu_urls(real_localtz):
 def emp_is_open(real_localtz):
     """Determines whether the Emporium is currently open.
 
+    Based on Wellesley Fresh hours of operations http://www.wellesleyfresh.com/pdfs/wellesley_hours_of_ops.pdf
+        as of March 2015.
+
     Args:
         real_localtz: A datetime object aware to the local timezone of America/New_York.
 
@@ -323,6 +326,9 @@ def emp_is_open(real_localtz):
 def lb_is_open(real_localtz):
     """Determines whether The Leaky Beaker is currently open.
 
+    Based on Wellesley Fresh hours of operations http://www.wellesleyfresh.com/pdfs/wellesley_hours_of_ops.pdf
+        as of March 2015.
+
     Args:
         real_localtz: A datetime object aware to the local timezone of America/New_York.
 
@@ -343,6 +349,9 @@ def lb_is_open(real_localtz):
 
 def collins_cafe_is_open(real_localtz):
     """Determines whether Collins Cafe is currently open.
+
+    Based on Wellesley Fresh hours of operations http://www.wellesleyfresh.com/pdfs/wellesley_hours_of_ops.pdf
+        as of March 2015.
 
     Args:
         real_localtz: A datetime object aware to the local timezone of America/New_York.
@@ -495,10 +504,10 @@ class EmailAlertHandler(webapp2.RequestHandler):
         for email in emails_to_send:
             user_ubsub_link = "wellesley-daily-dish.appspot.com/unsubscribe/?emailaddress="+email
 
-            email_body = emails_to_send[email] + "\nUpdate your subscription preferences using this link: "+user_ubsub_link
+            email_body = emails_to_send[email] + "\n\nUpdate your subscription preferences using this link: "+user_ubsub_link
             emails_to_send[email] = email_body
 
-            mail.send_mail("Wellesley Daily Dish <daily-dish-alerts@wellesley-daily-dish.appspotmail.com>",
+            mail.send_mail("Wellesley Daily Dish <alerts@wellesley-daily-dish.appspotmail.com>",
                 email+"@wellesley.edu",
                 "Dining Hall Favs Tomorrow!",
                 emails_to_send[email],

@@ -61,6 +61,12 @@ div#links_box h4 {
 	text-align: center;
 }
 
+span.w-logo {
+	font-family: "Adobe Garamond Pro", serif;
+	font-size: 42px;
+	letter-spacing: -0.08em;
+}
+
 .wrapper {
 	overflow: hidden;
 	padding-top: 20px;
