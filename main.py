@@ -31,6 +31,7 @@ class Author(ndb.Model):
     Attributes:
         email: A string representing the domain username of the Author (i.e. the part before @wellesley.edu)
         date: A datetime representing the time the Author was added to the database
+        user_id: A 16 character random string representing a unique identifier for this Author. Used for more secure URLs.
     """
     def create_ID():
         return ''.join(random.choice(string.ascii_letters) for i in range(16))
@@ -178,7 +179,6 @@ class DiningHall:
                         try:
                             b_index = i.index(b)+len(b)
                             two_char_after = i[b_index:b_index+2]
-                            logging.info(two_char_after)
                             if two_char_after!="ed":
                                 i = i.replace(b, b+',')
                         except ValueError:
@@ -446,11 +446,13 @@ class DishHandler(webapp2.RequestHandler):
 
     def post(self):
         """Adds to the database an Author with currentEmail to each checked Dish's list of authors."""
+        new_user_created = False
         currentEmail = cgi.escape(self.request.get("emailaddress"))
         user = Author.query().filter(Author.email == currentEmail).get()
         if not user:
             user = Author(email=currentEmail)
-        user.put()
+            new_user_created = True
+        key = user.put()
 
         for item in self.request.arguments():
             if item!="emailaddress":
@@ -467,6 +469,8 @@ class DishHandler(webapp2.RequestHandler):
                     dish_name_query.authors = old_authors
 
                 dish_name_query.put()
+        if new_user_created:
+            self.__send_welcome_email(currentEmail, key)
         self.redirect('/submission/?id='+user.user_id)
 
     def __author_found(self, author_email, author_list):
@@ -474,6 +478,23 @@ class DishHandler(webapp2.RequestHandler):
             if person.email==author_email:
                 return True
         return False
+
+    def __send_welcome_email(self, email, user_key):
+        """Sends a welcome email the first time someone sets up an alert on the site.
+
+        Args:
+            email: A string representing the domain username of the person who signed up.
+        """
+        user_ubsub_link = "wellesley-daily-dish.appspot.com/unsubscribe/?id="+user_key.get().user_id
+        email_body = "Hi, "+email+"!\n\nThanks for signing up on Wellesley Daily Dish!"
+        email_body += "\n\nUpdate your subscription preferences using this link: "+user_ubsub_link
+
+        mail.send_mail("Wellesley Daily Dish <welcome@wellesley-daily-dish.appspotmail.com>",
+                email+"@wellesley.edu",
+                "Welcome!",
+                email_body,
+                headers = {"List-Unsubscribe": "https://"+user_ubsub_link}
+                )
 
 
 class EmailAlertHandler(webapp2.RequestHandler):
