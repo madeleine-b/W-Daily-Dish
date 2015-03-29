@@ -279,8 +279,7 @@ def menu_urls(real_localtz):
     Returns:
         A list of strings corresponding to the URL location of each of the Wellesley dining halls.
     """
-    #dd = "%d" % (real_localtz.day) #for after spring break
-    dd = "18"
+    dd = "%d" % (real_localtz.day)
     mm = "%d" % (real_localtz.month)
 
     if len(dd) < 2:
@@ -474,7 +473,7 @@ class EmailAlertHandler(webapp2.RequestHandler):
 
         now = datetime.utcnow()
         now = now.replace(tzinfo=pytz.utc)
-        tomorrow_localtz = datetime.astimezone(now, pytz.timezone('America/New_York')) - timedelta(days=5) #change after spring break; pretending the 18th is tomorrow
+        tomorrow_localtz = datetime.astimezone(now, pytz.timezone('America/New_York')) + timedelta(days=1) 
 
         tomorrow_menu_URLS = menu_urls(tomorrow_localtz)
 

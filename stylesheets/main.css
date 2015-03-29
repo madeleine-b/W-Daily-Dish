@@ -106,7 +106,7 @@ div#button_row .wrapper h4 {
 }
 
 .btn-primary {
-	background-color: #002776;
+	background-color: #002776; /*darker blue*/
 	border-color: #002162;
 }
 
@@ -116,7 +116,7 @@ div#button_row .wrapper h4 {
 .btn-primary:active,
 .btn-primary.active,
 .open > .dropdown-toggle.btn-primary {
-	background-color: #00349d;
+	background-color: #00349d; /*lighter blue*/
 	border-color: #002d8a;
 }
 
