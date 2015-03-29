@@ -470,6 +470,7 @@ class DishHandler(webapp2.RequestHandler):
 
                 dish_name_query.put()
         if new_user_created:
+            logging.info("New user sign up "+currentEmail)
             self.__send_welcome_email(currentEmail, key)
         self.redirect('/submission/?id='+user.user_id)
 
@@ -590,6 +591,13 @@ class LogBounceHandler(webapp2.RequestHandler):
         for dish in dishes:
             removeAuthorFrmDish(dish, username)
 
+        user = Author.query().filter(Author.email == username).get()
+        if not user:
+            logging.info("Error finding "+username+" Author in DB")
+        else:
+            user.key.delete()
+            logging.info("Removed Author "+username+" and associated dishes")
+
 
 class UnsubscribeHandler(webapp2.RequestHandler):
     """Displays a subscription preferences page and allows users to unsubscribe from some or all food item alerts."""
@@ -625,6 +633,7 @@ class UnsubscribeHandler(webapp2.RequestHandler):
         try:
             currentEmail = Author.query().filter(Author.user_id == cgi.escape(self.request.get("id"))).get().email
         except AttributeError as e:
+            logging.info("Error unsubscribing")
             logging.info(e)
             currentEmail = ""
 
@@ -636,7 +645,7 @@ class UnsubscribeHandler(webapp2.RequestHandler):
         for item in itemsToUnsub:
             dish = Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.dish_name == item).get()
             removeAuthorFrmDish(dish, currentEmail)
-
+        logging.info("Unsubscribed "+currentEmail+" from "+", ".join(itemsToUnsub))
         self.response.out.write(submit_template.render(template_values))
 
 
