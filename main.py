@@ -6,6 +6,7 @@ import urllib2
 import cgi
 import jinja2
 import webapp2
+import random
 
 from datetime import datetime, timedelta
 from pytz.gae import pytz
@@ -31,10 +32,14 @@ class Author(ndb.Model):
         email: A string representing the domain username of the Author (i.e. the part before @wellesley.edu)
         date: A datetime representing the time the Author was added to the database
     """
+    def create_ID():
+        return ''.join(random.choice(string.ascii_letters) for i in range(16))
 
     email = ndb.StringProperty(indexed=True, required=True)
     date = ndb.DateTimeProperty(auto_now_add=True, indexed=True) #so can autoremove subscriptions over 4 years old (after graduation)
+    user_id = ndb.StringProperty(indexed=True, default=create_ID())
 
+    
 
 class Dish(ndb.Model):
     """A model for representing an individual food item.
@@ -190,7 +195,9 @@ class DiningHall:
             pos_list = i.split(",")
             for p in pos_list:
                 p = p.strip()
-                if p.lower() not in keywords and len(p)>1 and p[0] in alphabet and p not in bold_items:
+                if "closed" in p.lower(): #for Stone-Davis
+                    temp.append("*b*"+p)
+                elif p.lower() not in keywords and len(p)>1 and p[0] in alphabet and p not in bold_items:
                     temp.append(p)
                 elif len(p)>1 and p in bold_items:
                     temp.append("*b*"+p)  #so we can remember not to call p a food item
@@ -200,7 +207,9 @@ class DiningHall:
                 temp.pop() #means we found a list separated by semi-colons and don't want the original list to be added as one item
                 for p in pos_list:
                     p = p.strip()
-                    if p not in temp and p.lower() not in keywords and len(p)>1 and p[0] in alphabet and p not in bold_items:
+                    if "closed" in p.lower() and p not in temp:
+                        temp.append("*b*"+p)
+                    elif p not in temp and p.lower() not in keywords and len(p)>1 and p[0] in alphabet and p not in bold_items:
                         temp.append(p)
                     elif len(p)>1 and p in bold_items:
                         temp.append("*b"+p)
@@ -417,7 +426,11 @@ class DishHandler(webapp2.RequestHandler):
 
         Shows all dishes the user with currentEmail is set up to receive alerts about.
         """
-        currentEmail = cgi.escape(self.request.get("emailaddress"))
+        try:
+            currentEmail = Author.query().filter(Author.user_id == cgi.escape(self.request.get("id"))).get().email
+        except AttributeError as e:
+            logging.info(e)
+            currentEmail = ""
         submit_template = JINJA_ENVIRONMENT.get_template('submission.html')
 
         template_values = {}
@@ -435,6 +448,7 @@ class DishHandler(webapp2.RequestHandler):
         """Adds to the database an Author with currentEmail to each checked Dish's list of authors."""
         currentEmail = cgi.escape(self.request.get("emailaddress"))
         user = Author(email=currentEmail)
+        user.put()
 
         for item in self.request.arguments():
             if item!="emailaddress":
@@ -451,7 +465,7 @@ class DishHandler(webapp2.RequestHandler):
                     dish_name_query.authors = old_authors
 
                 dish_name_query.put()
-        self.redirect('/submission/?emailaddress='+currentEmail)
+        self.redirect('/submission/?id='+user.user_id)
 
     def __author_found(self, author_email, author_list):
         for person in author_list:
@@ -501,7 +515,7 @@ class EmailAlertHandler(webapp2.RequestHandler):
                             emails_to_send[person_email] = email_body
 
         for email in emails_to_send:
-            user_ubsub_link = "wellesley-daily-dish.appspot.com/unsubscribe/?emailaddress="+email
+            user_ubsub_link = "wellesley-daily-dish.appspot.com/unsubscribe/?id="+Author.query().filter(Author.email==email).get().user_id
 
             email_body = emails_to_send[email] + "\n\nUpdate your subscription preferences using this link: "+user_ubsub_link
             emails_to_send[email] = email_body
@@ -559,7 +573,12 @@ class UnsubscribeHandler(webapp2.RequestHandler):
 
     def get(self):
         """Displays an unsubscribe page with checked checkboxes for each item the user with currentEmail is subscribed to."""
-        currentEmail = cgi.escape(self.request.get("emailaddress"))
+        try:
+            currentEmail = Author.query().filter(Author.user_id == cgi.escape(self.request.get("id"))).get().email
+        except AttributeError as e:
+            logging.info(e)
+            currentEmail = ""
+        logging.info("HERE! "+currentEmail)
         submit_template = JINJA_ENVIRONMENT.get_template('unsubscribe_page.html')
 
         template_values = {}
@@ -569,7 +588,7 @@ class UnsubscribeHandler(webapp2.RequestHandler):
         
         for f in foods:
             template_values["foods"].append(f)
-        template_values["email"] = currentEmail
+        template_values["id"] = cgi.escape(self.request.get("id"))
 
         self.response.out.write(submit_template.render(template_values))
 
@@ -580,11 +599,15 @@ class UnsubscribeHandler(webapp2.RequestHandler):
         submit_template = JINJA_ENVIRONMENT.get_template('unsubscribe_success.html')
         template_values = {}
 
-        currentEmail = cgi.escape(self.request.get("emailaddress"))
+        try:
+            currentEmail = Author.query().filter(Author.user_id == cgi.escape(self.request.get("id"))).get().email
+        except AttributeError as e:
+            logging.info(e)
+            currentEmail = ""
 
         subbedDishes = Dish.query(ancestor=DEFAULT_DISH.key).filter(Dish.authors.email == currentEmail).fetch()
         allSubbedItems = [d.dish_name for d in subbedDishes]
-        checkedItems = [chItem for chItem in self.request.arguments() if chItem!="emailaddress"]
+        checkedItems = [chItem for chItem in self.request.arguments() if chItem!="id"]
         itemsToUnsub = [un for un in allSubbedItems if un not in checkedItems] #inefficient... there are apparently some clever JS tricks
 
         for item in itemsToUnsub:

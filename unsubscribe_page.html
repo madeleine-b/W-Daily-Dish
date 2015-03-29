@@ -21,7 +21,7 @@
       <p>Here you may manage your email subscription.
         Uncheck those items for which you no longer wish to receive alerts, then press "Update Subscription".</p>
       <p>The items you currently have alerts set up for are:</p>
-      <form action="/unsubscribe/?emailaddress={{email}}" id="unsub_form" method="post">
+      <form action="/unsubscribe/?id={{id}}" id="unsub_form" method="post">
         <p>
           <ul>
             {% for item in foods %}
