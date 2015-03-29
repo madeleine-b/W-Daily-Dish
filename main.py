@@ -447,7 +447,9 @@ class DishHandler(webapp2.RequestHandler):
     def post(self):
         """Adds to the database an Author with currentEmail to each checked Dish's list of authors."""
         currentEmail = cgi.escape(self.request.get("emailaddress"))
-        user = Author(email=currentEmail)
+        user = Author.query().filter(Author.email == currentEmail).get()
+        if not user:
+            user = Author(email=currentEmail)
         user.put()
 
         for item in self.request.arguments():
@@ -578,7 +580,6 @@ class UnsubscribeHandler(webapp2.RequestHandler):
         except AttributeError as e:
             logging.info(e)
             currentEmail = ""
-        logging.info("HERE! "+currentEmail)
         submit_template = JINJA_ENVIRONMENT.get_template('unsubscribe_page.html')
 
         template_values = {}
@@ -588,6 +589,7 @@ class UnsubscribeHandler(webapp2.RequestHandler):
         
         for f in foods:
             template_values["foods"].append(f)
+        template_values["email"] = currentEmail
         template_values["id"] = cgi.escape(self.request.get("id"))
 
         self.response.out.write(submit_template.render(template_values))
