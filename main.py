@@ -33,12 +33,11 @@ class Author(ndb.Model):
         date: A datetime representing the time the Author was added to the database
         user_id: A 16 character random string representing a unique identifier for this Author. Used for more secure URLs.
     """
-    def create_ID():
-        return ''.join(random.choice(string.ascii_letters) for i in range(16))
-
     email = ndb.StringProperty(indexed=True, required=True)
     date = ndb.DateTimeProperty(auto_now_add=True, indexed=True) #so can autoremove subscriptions over 4 years old (after graduation)
-    user_id = ndb.StringProperty(indexed=True, default=create_ID())
+    user_id = ndb.StringProperty(indexed=True)
+    def create_ID(self, email):
+        return ''.join(random.choice(string.ascii_letters) for i in range(16))+email
 
     
 
@@ -451,6 +450,7 @@ class DishHandler(webapp2.RequestHandler):
         user = Author.query().filter(Author.email == currentEmail).get()
         if not user:
             user = Author(email=currentEmail)
+            user.user_id = user.create_ID(currentEmail)
             new_user_created = True
         key = user.put()
 
