@@ -147,7 +147,7 @@ class DiningHall:
             A list of strings corresponding to food_items and bold_items that have been cleaned and combined
             with each bold item prepended by *b*.
         """
-        keywords = [" if ", "Offered Daily:", "Offered", "Offered daily", "Offered daily:",  "!supportLineBreakNewLine", "endif", "Served", "Daily", "daily", "served"]
+        keywords = [" if ", "Offered Daily:", "Offered", "Offered daily", "Offered daily:",  "!supportLineBreakNewLine", "endif", "Served", "served", "served daily"]
         alphabet = []
         for p in range(len(string.ascii_letters)):
             alphabet.append(string.ascii_letters[p])
