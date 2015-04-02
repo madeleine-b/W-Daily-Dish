@@ -396,7 +396,11 @@ class MainPage(webapp2.RequestHandler):
         stone = DiningHall("stone", menus, real_localtz)
         tower = DiningHall("tower", menus, real_localtz)
 
-        date_string = real_localtz.strftime("%A, %B %d")
+        date_day = real_localtz.strftime("%d")
+        if date_day[0]=='0':
+            date_string = real_localtz.strftime("%A, %B "+date_day[1])
+        else:
+            date_string = real_localtz.strftime("%A, %B %d")
 
         emporium_is_open = emp_is_open(real_localtz)
         leaky_beaker_is_open = lb_is_open(real_localtz)
@@ -535,7 +539,12 @@ class EmailAlertHandler(webapp2.RequestHandler):
                             old_email_body += "\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow" 
                             emails_to_send[person_email] = old_email_body
                         else:
-                            email_body = "Hi, "+person_email+"!\n\nGood news.\n\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow ("+tomorrow_localtz.strftime("%A, %B %d")+")"
+                            tomorrow_day = tomorrow_localtz.strftime("%d")
+                            if tomorrow_day[0]=='0':
+                                tomorrow_date = tomorrow_localtz.strftime("%A, %B "+tomorrow_day[1])
+                            else:
+                                tomorrow_date = tomorrow_localtz.strftime("%A, %B %d")
+                            email_body = "Hi, "+person_email+"!\n\nGood news.\n\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow ("+tomorrow_date+")"
                             emails_to_send[person_email] = email_body
 
         for email in emails_to_send:
