@@ -146,7 +146,7 @@ class DiningHall:
             A list of strings corresponding to food_items and bold_items that have been cleaned and combined
             with each bold item prepended by *b*.
         """
-        keywords = [" if ", "Offered Daily:", "Offered", "Offered daily", "Offered daily:",  "!supportLineBreakNewLine", "endif", "Served", "served", "served daily"]
+        keywords = [" if ", "Offered Daily:", "Offered", "Offered daily", "Offered daily:",  "Daily", "daily", "!supportLineBreakNewLine", "endif", "Served", "served", "served daily"]
         alphabet = []
         for p in range(len(string.ascii_letters)):
             alphabet.append(string.ascii_letters[p])
@@ -532,10 +532,10 @@ class EmailAlertHandler(webapp2.RequestHandler):
                     for person_email in ppl_to_alert:
                         if emails_to_send.has_key(person_email): #true if an email alert is already in progress
                             old_email_body = emails_to_send[person_email]
-                            old_email_body += "\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow"
+                            old_email_body += "\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow" 
                             emails_to_send[person_email] = old_email_body
                         else:
-                            email_body = "Hi, "+person_email+"!\n\nGood news.\n\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow"
+                            email_body = "Hi, "+person_email+"!\n\nGood news.\n\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow ("+tomorrow_localtz.strftime("%A, %B %d")+")"
                             emails_to_send[person_email] = email_body
 
         for email in emails_to_send:
@@ -543,6 +543,8 @@ class EmailAlertHandler(webapp2.RequestHandler):
 
             email_body = emails_to_send[email] + "\n\nUpdate your subscription preferences using this link: "+user_ubsub_link
             emails_to_send[email] = email_body
+
+            logging.info("Sent email to "+email+": "+email_body)
 
             mail.send_mail("Wellesley Daily Dish <alerts@wellesley-daily-dish.appspotmail.com>",
                 email+"@wellesley.edu",
