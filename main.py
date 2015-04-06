@@ -212,7 +212,8 @@ class DiningHall:
                         temp.append(p)
                     elif len(p)>1 and p in bold_items:
                         temp.append("*b"+p)
-
+        if len(temp)==0:
+            temp.append("*b*No items found")
         return temp
 
     def bpt_open(self, real_localtz):
