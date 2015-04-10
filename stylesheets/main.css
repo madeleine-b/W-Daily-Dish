@@ -214,3 +214,9 @@ div#button_row .wrapper h4 {
 	}
 }
 
+@media screen and (max-width: 1086px){
+	.answer:not(.no-hide) {
+		display:none;
+	}
+}
+
