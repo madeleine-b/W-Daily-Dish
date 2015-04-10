@@ -26,6 +26,42 @@
         d=b;
         document.write(a+b+c+d+e);
       }
+
+      function placeAlertButton() {
+        var BOOTSTRAP_WIDTHS = {"xs" : 767, "sm" : 768, "md" : 992, "lg" : 1200};
+        var width = $(window).width();
+        var alertHTMLString = "<button type='submit' class='btn btn-primary' data-toggle='modal' data-target='#alertModal'>"+
+              "Set Up Email Alerts</button>"+
+              "<div class='modal fade' id='alertModal' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'>"+
+              "<div class='modal-dialog'><div class='modal-content'><div class='modal-header'>"+
+              "<button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button></div>"+
+              "<div class='modal-body'><p>Enter your email to be notified the day before any of the selected foods appear in one of the dining halls!</p>"+
+              "<form class='form-inline'><p>"+
+              "<input placeholder='domain username' class='form-control email-box' type='text' name='emailaddress' form='pref_form' required>"+
+              "&nbsp;@wellesley.edu</p></form></div><div class='modal-footer'>"+
+              "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>"+
+              "<button id='submit_prefs_button' form='pref_form' type='submit' class='btn btn-primary'>Submit</button></div></div></div></div>";
+        var parsedHTML = $.parseHTML(alertHTMLString);
+
+        if (width < BOOTSTRAP_WIDTHS["lg"]) { //remove button from side and add to top
+          if (!$.trim($("#modal_open_button_box_top").html())) { //if #modal_open_button_box_top is empty
+            $("#modal_open_button_box").empty();
+            $("#modal_open_button_box_top").append(parsedHTML);
+          }
+        } else { //remove button from top and add to side
+          if (!$.trim($("#modal_open_button_box").html())) { //if #modal_open_button_box is empty
+            $("#modal_open_button_box_top").empty();
+            $("#modal_open_button_box").append(parsedHTML);
+          }
+        }
+      }
+
+      //responsiveness so only calls at end of resizing
+      var resizeTimer;
+      $(window).resize(function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(placeAlertButton, 100);
+      });
     </script> 
   </head>
 
@@ -93,9 +129,11 @@
     <div class="header">
       <h1><a href="/"><span class="w-logo">W</span>ellesley Daily Dish</a></h1>
       <h3>{{ date_string }}</h3>
+      <div class="button-box col-xs-2" id="modal_open_button_box_top"></div>
     </div>
 
     <div id="button_row" class="row">
+        <div class="menu-box col-xs-2" style="background-color:transparent;border:none;"></div>
         <div class="menu-box col-xs-2">
           <div class="wrapper">
             <h4>Emporium</h4>
@@ -105,7 +143,9 @@
         <div class="menu-box col-xs-2">
           <div class="wrapper">
             <h4>The Leaky Beaker</h4>
-            <h6 style="{{'color:#268727;' if leaky_beaker_is_open else 'color:#EB240E;'}}" class="open_indicator">({{ 'open' if leaky_beaker_is_open else 'closed' }})</h6>
+            <h6 style="{{'color:#268727;' if leaky_beaker_is_open else 'color:#EB240E;'}}" class="open_indicator">
+              ({{ 'open' if leaky_beaker_is_open else 'closed' }})
+            </h6>
           </div>
         </div>
         <div class="menu-box col-xs-2">
@@ -114,13 +154,12 @@
             <h6 style="{{'color:#268727;' if collins_is_open else 'color:#EB240E;'}}" class="open_indicator">({{ 'open' if collins_is_open else 'closed' }})</h6>
           </div>
         </div>
-        <div class="button-box col-xs-2"></div>
         <div class="button-box col-xs-2" id="modal_open_button_box">
-          <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+          <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#alertModal">
               Set Up Email Alerts
           </button>
 
-          <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-header">
@@ -261,6 +300,7 @@
       </form>   
     </div>
     <!--  INSERT FUN COMMENT HERE   -->
+    <script>placeAlertButton();</script>
   </body>
 </html>
 {% endautoescape %}

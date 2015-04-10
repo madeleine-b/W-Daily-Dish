@@ -36,6 +36,19 @@ div#links_box h4 {
 	margin-top: 25px;
 }
 
+div#hall_row .wrapper h2 {
+	margin-bottom: 0;
+}
+
+.header {
+	text-align: center;
+}
+
+#modal_open_button_box_top {
+	width: 100%;
+	margin: 15px auto;
+}
+
 #modal_open_button_box {
 	float: right;
 }
@@ -57,8 +70,8 @@ div#links_box h4 {
 	width: 40%;
 }
 
-.header {
-	text-align: center;
+div#alertModal {
+	text-align: left;
 }
 
 span.w-logo {
@@ -68,14 +81,12 @@ span.w-logo {
 }
 
 .wrapper {
-	overflow: hidden;
 	padding-top: 20px;
 }
 
 div#hall_row .wrapper h2,
 div#button_row .wrapper h4 {
 	margin-top: 0;
-	overflow: hidden;
 	float: left;
 }
 
@@ -84,7 +95,6 @@ div#button_row .wrapper h6 {
 	display: block;
 	margin-top: 0;
 	margin-right: 10px;
-	overflow: hidden;
 }
 
 div#hall_row .wrapper h2,
@@ -120,15 +130,15 @@ div#button_row .wrapper h4 {
 	border-color: #002d8a;
 }
 
-.open_indicator {
-	display: block;
-}
-
 .menu-box, .button-box {
 	margin-left: 25px;
 	padding-left: 20px;
 	padding-bottom: 10px;
 	width: 17.7%;
+}
+
+.button-box {
+	margin-left: 0;
 }
 
 .menu-box {
@@ -147,10 +157,17 @@ div#button_row .wrapper h4 {
 	padding-bottom: 20px;
 }
 
-
 @media (min-width: 750px) { /*equivalent to @screen-sm-min but I'm not using LESS*/
 	.row#hall_row {
 		padding-bottom: 50px;
 	}
 }
+
+/* 
+@media (min-width: 768px) { ... }
+
+@media (min-width: 992px) { ... }
+
+
+@media (min-width: 1200px) { ... }*/
 
