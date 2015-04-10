@@ -163,15 +163,54 @@ div#button_row .wrapper h4 {
 	}
 }
 
-/* 
-@media (min-width: 768px) { ... }
-
-@media (min-width: 992px) { ... }*/
-
 /*time to collapse menus. oh boy.*/
-@media (max-width:1090px) { 
+@media (max-width:1086px) { /*when Tower box moves down; hall boxes are 1170px wide, not including margins or anything*/
+	#button_row, #hall_row {
+		width: 100%;
+		text-align: center;
+	}
 
+	.menu-box {
+		width: 55%;
+		margin: 0 auto 25px;
+		text-align: left;
+		float: none;
+	}
 }
 
-/*@media (min-width: 1200px) { ... }*/
+@media (max-width:986px) {
+	.menu-box {
+		width: 58.6%;
+	}
+}
+
+@media (max-width:886px) {
+	.menu-box {
+		width: 62.1%;
+	}
+}
+
+@media (max-width:786px) {
+	.menu-box {
+		width: 65.7%;
+	}
+}
+
+@media (max-width:647px) {
+	.menu-box {
+		width: 70%;
+	}
+}
+
+@media (max-width:421px) {
+	.menu-box {
+		width: 75%;
+	}
+}
+
+@media (max-width:407px) {
+	.menu-box {
+		width: 80%;
+	}
+}
 

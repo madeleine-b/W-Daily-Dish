@@ -291,9 +291,6 @@ def menu_urls(real_localtz):
     dd = "%d" % (real_localtz.day)
     mm = "%d" % (real_localtz.month)
 
-    mm="01"
-    dd="19"
-
     if len(dd) < 2:
         dd = "0"+dd
     if len(mm) < 2:
