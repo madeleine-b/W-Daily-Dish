@@ -166,8 +166,12 @@ div#button_row .wrapper h4 {
 /* 
 @media (min-width: 768px) { ... }
 
-@media (min-width: 992px) { ... }
+@media (min-width: 992px) { ... }*/
 
+/*time to collapse menus. oh boy.*/
+@media (max-width:1090px) { 
 
-@media (min-width: 1200px) { ... }*/
+}
+
+/*@media (min-width: 1200px) { ... }*/
 
