@@ -18,9 +18,11 @@ handlers:
 
 - url: /unsubscribe/.*
   script: main.application
+  secure: always
 
 - url: /.*
   script: main.application
+  secure: always
 
 
 libraries:

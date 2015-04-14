@@ -126,8 +126,9 @@ class DiningHall:
                 bold_items.append(''.join(node.findAll(text=True)).encode('utf-8'))
 
         except urllib2.HTTPError as e:
-            logging.warning("HTTP Error:")
+            logging.warning("HTTP Error. Code:")
             logging.warning(e.code)
+            logging.warning(e)
             
         except urllib2.URLError as e:
             logging.warning("URL Error (not HTTP):")
