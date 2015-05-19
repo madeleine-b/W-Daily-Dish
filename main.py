@@ -73,6 +73,7 @@ class DiningHall:
             menus: A list of strings corresponding to the URL where each dining hall's food info is posted.
             local_tz: A datetime object for the local time zone (in this case, America/New_York)
         """
+
         if hall_name == "lulu":
             self.name = "lulu"
             self.food_items=[] 
@@ -234,6 +235,32 @@ class DiningHall:
 
         hm_sum = hour + (minute/60.0)
 
+        if real_localtz.month==5:
+            day = real_localtz.day
+
+            if day == 18 or day == 19 or (self.name!="bates" and day >= 20 and day <=22):
+                return hm_sum>=7 and hm_sum<=19
+            elif day >= 20 and day <= 22 and self.name=="bates":
+                return hm_sum>=7 and hm_sum<=10
+            if self.name=="bates" and day >= 23 and day <= 25:
+                return False
+            elif self.name!="bates" and day >= 23 and day <= 25:
+                return hm_sum>=8.5 and hm_sum<=18.5
+            elif self.name!="bates" and day==25:
+                if self.name=="tower":
+                    return hm_sum>=17 and hm_sum<=19
+                return hm_sum>=7 and hm_sum<=19
+            elif day>=26 and day<=28:
+                if self.name=="bates":
+                    return hm_sum>=7 and hm_sum<=10
+                return hm_sum>=7 and hm_sum<=19
+            if day==29:
+                return hm_sum>=7 and hm_sum<=9
+            if day>29:
+                return False
+        else:
+            return False
+
         day_of_week = real_localtz.isoweekday() #mon = 1; sun = 7
 
         if day_of_week==6 or day_of_week==7: #saturday and sunday hours
@@ -258,6 +285,20 @@ class DiningHall:
 
         hm_sum = hour + (minute/60.0)
 
+        if real_localtz.month==5:
+            day = real_localtz.day
+            if day == 18 or day == 19:
+                return hm_sum>=7 and hm_sum<=22
+            elif day == 20 or day == 21 or day ==22 or day == 26 or day == 27 or day == 28:
+                return hm_sum>=11.5 and hm_sum<=14
+            elif day == 23 or day == 24 or day>=29:
+                return False
+            elif day == 25:
+                return hm_sum>=7 and hm_sum<=14
+        else:
+            return False
+
+
         return (hm_sum>=7 and hm_sum<=10) or (hm_sum>=11.5 and hm_sum<=14) or (hm_sum>=17 and hm_sum<=22)
         
     def stone_open(self, real_localtz):
@@ -272,6 +313,8 @@ class DiningHall:
         Returns:
             A boolean of whether Stone-Davis is currently open.
         """
+        return False #closed until Fall 2015
+
         day_of_week = real_localtz.isoweekday() #mon = 1; sun = 7
 
         if day_of_week==6 or day_of_week==7:
@@ -323,6 +366,18 @@ def emp_is_open(real_localtz):
 
     hm_sum = hour + (minute/60.0)
 
+    day = real_localtz.day
+
+    if real_localtz.month==5:
+        if day >= 18 and day <= 28:
+            return hm_sum>=7 and hm_sum<=20
+        if day == 29:
+            return hm_sum>=8 and hm_sum<=13
+        if day > 29:
+            return False
+    else:
+        return False
+
     day_of_week = real_localtz.isoweekday() #mon = 1; sun = 7
 
     if day_of_week==1 or day_of_week==5:
@@ -354,6 +409,20 @@ def lb_is_open(real_localtz):
 
     hm_sum = hour + (minute/60.0)
 
+    day = real_localtz.day
+
+    if real_localtz.month==5:
+        if day >=18 and day <=20:
+            return hm_sum>=8 and hm_sum<=16
+        if day >= 21 and day <= 25:
+            return False
+        if day >=26 and day <=28:
+            return hm_sum>=9 and hm_sum<=14
+        if day >= 29:
+            return False
+    if real_localtz.month==6 and (day==1 or day==2):
+        return False
+
     return hm_sum>=8 and hm_sum<=16
 
 def collins_cafe_is_open(real_localtz):
@@ -375,6 +444,11 @@ def collins_cafe_is_open(real_localtz):
 
     hour = real_localtz.hour 
     minute = real_localtz.minute
+
+    if real_localtz.month==5 and real_localtz.day==29:
+        return hm_sum>=8 and hm_sum<=10.5
+    else:
+        return False
 
     hm_sum = hour + (minute/60.0)
 
