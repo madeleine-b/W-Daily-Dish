@@ -157,26 +157,51 @@ class DiningHall:
 
         for i in range(len(bold_items)):
             b = bold_items[i]
+
             b = b.replace(b'\r\n', ' ').replace(b'\xc2\xa0', ' ').replace(b'\xe2\x80\x99', '\'').replace(b'\xc2\x92', '\'').replace(b'\x26', '&amp;')
+            b = b.replace('-','')
             b = re.sub("[\(\[].*?[\)\]]", "", b) #removes stuff between parentheses and brackets
             b = ' '.join(b.split()) #removes more than one space between words
             b = "".join([x if ord(x) < 128 else '' for x in b]) #removes non-ASCII characters
             b = b.strip()
             bold_items[i] = b
 
+        bold_items = filter(lambda x: len(x)>1, bold_items)
+
+        if 'From' in bold_items:
+            bold_items.remove('From')
+            if 'the Grill' in bold_items:
+                bold_items.remove('the Grill')
+                bold_items.append('From the Grill')
+        
+        # to avoid making tons of 'dinner' categories instead of e.g. 'pure dinner'
+        if 'Lunch' in bold_items:
+            bold_items.remove('Lunch')
+            bold_items.append('Lunch')
+
+        if 'Dinner' in bold_items:
+            bold_items.remove('Dinner')
+            bold_items.append('Dinner')
+
         for i in self.food_items:
             i = i.replace(b'\r\n', ' ').replace(b'\xc2\xa0', ' ').replace(b'\xe2\x80\x99', '\'').replace(b'\xc2\x92', '\'').replace(b'\x26', '&')
             i = re.sub("[\(\[].*?[\)\]]", "", i) #removes stuff between parentheses and brackets
             i = ' '.join(i.split()) #removes more than one space between words
             i = i.replace(" and", ',').replace(b'\x2D', '-').replace("or ", ',').replace('<', '').replace('>', '') #sometimes the and-replacement is tricky
-            i = i.replace('- ','')
+            i = i.replace('- ','').replace('-','')
 
             for k in keywords:
                 i = i.replace(k, '')
 
-            for b in bold_items: #solving issue with Tower having bolded menu categories in same paragraph as foods 
+            for b in bold_items:
+                if b in i:
+                    i_b=i
+                    i = i.replace(b, ','+b+',')
+                    #logging.info(self.name+str(bold_items)+'\n'+i_b+'\n'+i+'-----------\n')
+                    break
+            for b in bold_items: #b/c of issue with Tower having bolded menu categories in same paragraph as foods 
                 if len(b)>1:
-                    if b.lower()=="grill": #grumble grumble
+                    if b.lower()=="grill": #grumble grumble     
                         try:
                             b_index = i.index(b)+len(b)
                             two_char_after = i[b_index:b_index+2]
@@ -185,7 +210,7 @@ class DiningHall:
                         except ValueError:
                             pass
                     else:
-                        i = i.replace(b, b+',')
+                        i = i.replace(b, ', '+b+',')
             
             i = "".join([x if ord(x) < 128 else '' for x in i]) #removes non-ASCII characters
 
@@ -199,21 +224,22 @@ class DiningHall:
                 if "closed" in p.lower(): #for Stone-Davis
                     temp.append("*b*"+p)
                 elif p.lower() not in keywords and len(p)>1 and p[0] in alphabet and p not in bold_items:
-                    temp.append(p)
+                    if p.find(';')==-1:
+                        temp.append(p)
+                    else: # we have a sublist with a semicolon
+                        sublist = p.split(';')
+                        for x in sublist:
+                            x = x.strip()
+                            if "closed" in x.lower() and x not in temp:
+                                temp.append("*b*"+x)
+                            elif x not in temp and x.lower() not in keywords and len(x)>1 and x[0] in alphabet and x not in bold_items:
+                                temp.append(x)
+                            elif len(x)>1 and x in bold_items:
+                                temp.append("*b"+x)
                 elif len(p)>1 and p in bold_items:
                     temp.append("*b*"+p)  #so we can remember not to call p a food item
 
-            pos_list = i.split(";")
-            if len(pos_list) > 1:
-                temp.pop() #means we found a list separated by semi-colons and don't want the original list to be added as one item
-                for p in pos_list:
-                    p = p.strip()
-                    if "closed" in p.lower() and p not in temp:
-                        temp.append("*b*"+p)
-                    elif p not in temp and p.lower() not in keywords and len(p)>1 and p[0] in alphabet and p not in bold_items:
-                        temp.append(p)
-                    elif len(p)>1 and p in bold_items:
-                        temp.append("*b"+p)
+
         if len(temp)==0:
             temp.append("*b*No items found")
         return temp
@@ -222,7 +248,7 @@ class DiningHall:
         """Determines whether Bates, Pomeroy, and Tower dining halls are currently open.
 
         Based on Wellesley Fresh hours of operations http://www.wellesleyfresh.com/pdfs/wellesley_hours_of_ops.pdf
-        as of March 2015.
+        as of August 2016.
 
         Args:
             real_localtz: A datetime object that is date aware to America/New_York timezone.
@@ -246,7 +272,7 @@ class DiningHall:
         """Determines whether Lulu (Bae Pao Lulu Chow) dining hall is currently open.
 
         Based on Wellesley Fresh hours of operations http://www.wellesleyfresh.com/pdfs/wellesley_hours_of_ops.pdf
-        as of August 2015.
+        as of August 2016.
 
         Args:
             real_localtz: A datetime object that is date aware to America/New_York timezone.
@@ -265,7 +291,7 @@ class DiningHall:
         """Determines whether Stone-Davis dining hall is currently open.
 
         Based on Wellesley Fresh hours of operations http://www.wellesleyfresh.com/pdfs/wellesley_hours_of_ops.pdf
-        as of August 2015.
+        as of August 2016.
 
         Args:
             real_localtz: A datetime object that is date aware to America/New_York timezone.
@@ -274,10 +300,16 @@ class DiningHall:
             A boolean of whether Stone-Davis is currently open.
         """
         day_of_week = real_localtz.isoweekday() #mon = 1; sun = 7
+        
+        hour = real_localtz.hour 
+        minute = real_localtz.minute
+
+        hm_sum = hour + (minute/60.0)
 
         if day_of_week==6 or day_of_week==7:
             return False
-        
+        if day_of_week==5:
+            return (hm_sum>=7 and hm_sum <=10) or (hm_sum>=11.5 and hm_sum<=14) or (hm_sum>=5 and hm_sum<=19)
         return self.lulu_open(real_localtz)
 
 
@@ -311,7 +343,7 @@ def emp_is_open(real_localtz):
     """Determines whether the Emporium is currently open.
 
     Based on Wellesley Fresh hours of operations http://www.wellesleyfresh.com/pdfs/wellesley_hours_of_ops.pdf
-        as of August 2015.
+        as of August 2016.
 
     Args:
         real_localtz: A datetime object aware to the local timezone of America/New_York.
@@ -337,7 +369,7 @@ def lb_is_open(real_localtz):
     """Determines whether The Leaky Beaker is currently open.
 
     Based on Wellesley Fresh hours of operations http://www.wellesleyfresh.com/pdfs/wellesley_hours_of_ops.pdf
-        as of August 2015.
+        as of August 2016.
 
     Args:
         real_localtz: A datetime object aware to the local timezone of America/New_York.
@@ -361,7 +393,7 @@ def collins_cafe_is_open(real_localtz):
     """Determines whether Collins Cafe is currently open.
 
     Based on Wellesley Fresh hours of operations http://www.wellesleyfresh.com/pdfs/wellesley_hours_of_ops.pdf
-        as of August 2015.
+        as of August 2016.
 
     Args:
         real_localtz: A datetime object aware to the local timezone of America/New_York.
@@ -477,7 +509,7 @@ class DishHandler(webapp2.RequestHandler):
 
                 dish_name_query.put()
         if new_user_created:
-            logging.info("New user sign up "+currentEmail)
+            logging.info("New user sign up %s" % currentEmail)
             self.__send_welcome_email(currentEmail, key)
         self.redirect('/submission/?id='+user.user_id)
 
@@ -494,7 +526,7 @@ class DishHandler(webapp2.RequestHandler):
             email: A string representing the domain username of the person who signed up.
         """
         user_ubsub_link = "wellesley-daily-dish.appspot.com/unsubscribe/?id="+user_key.get().user_id
-        email_body = "Hi, "+email+"!\n\nThanks for signing up on Wellesley Daily Dish!"
+        email_body = "Hi, %s!\n\nThanks for signing up on Wellesley Daily Dish!" % email
         email_body += "\n\nUpdate your subscription preferences using this link: "+user_ubsub_link
 
         mail.send_mail("Wellesley Daily Dish <welcome@wellesley-daily-dish.appspotmail.com>",
@@ -539,7 +571,8 @@ class EmailAlertHandler(webapp2.RequestHandler):
                     for person_email in ppl_to_alert:
                         if emails_to_send.has_key(person_email): #true if an email alert is already in progress
                             old_email_body = emails_to_send[person_email]
-                            old_email_body += "\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow" 
+                            old_email_body += "\n%s will be at " % fI
+                            old_email_body += self.neaten(dHall.name)+" tomorrow" 
                             emails_to_send[person_email] = old_email_body
                         else:
                             tomorrow_day = tomorrow_localtz.strftime("%d")
@@ -547,7 +580,8 @@ class EmailAlertHandler(webapp2.RequestHandler):
                                 tomorrow_date = tomorrow_localtz.strftime("%A, %B "+tomorrow_day[1])
                             else:
                                 tomorrow_date = tomorrow_localtz.strftime("%A, %B %d")
-                            email_body = "Hi, "+person_email+"!\n\nGood news.\n\n"+fI+" will be at "+self.neaten(dHall.name)+" tomorrow ("+tomorrow_date+")"
+                            email_body = "Hi, %s!\n\nGood news.\n\n" % person_email
+                            email_body += fI+" will be at "+self.neaten(dHall.name)+" tomorrow ("+tomorrow_date+")"
                             emails_to_send[person_email] = email_body
 
         for email in emails_to_send:
@@ -556,10 +590,10 @@ class EmailAlertHandler(webapp2.RequestHandler):
             email_body = emails_to_send[email] + "\n\nUpdate your subscription preferences using this link: "+user_ubsub_link
             emails_to_send[email] = email_body
 
-            logging.info("Sent email to "+email+": "+email_body)
+            logging.info("Sent email to %s: %s" % (email,email_body))
 
             mail.send_mail("Wellesley Daily Dish <alerts@wellesley-daily-dish.appspotmail.com>",
-                email+"@wellesley.edu",
+                "%s@wellesley.edu" % email,
                 "Dining Hall Favs Tomorrow!",
                 emails_to_send[email],
                 headers = {"List-Unsubscribe": "https://"+user_ubsub_link}
@@ -607,10 +641,10 @@ class LogBounceHandler(webapp2.RequestHandler):
 
         user = Author.query().filter(Author.email == username).get()
         if not user:
-            logging.info("Error finding "+username+" Author in DB")
+            logging.info("Error finding %s Author in DB" % username)
         else:
             user.key.delete()
-            logging.info("Removed Author "+username+" and associated dishes")
+            logging.info("Removed Author %s and associated dishes" % username)
 
 
 class UnsubscribeHandler(webapp2.RequestHandler):
