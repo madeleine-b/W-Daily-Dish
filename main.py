@@ -421,6 +421,7 @@ class MainPage(webapp2.RequestHandler):
 
         now = datetime.utcnow()
         now = now.replace(tzinfo=pytz.utc)
+
         real_localtz = datetime.astimezone(now, pytz.timezone('America/New_York'))
 
         menus = menu_urls(real_localtz)
